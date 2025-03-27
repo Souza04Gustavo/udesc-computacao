@@ -1,0 +1,6 @@
+**/*.html
+*.txt
+!teste.txt
+!requirements.txt
+**/venv/
+**/__pycache__/
