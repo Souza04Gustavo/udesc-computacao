@@ -1,3 +1,5 @@
+// gcc robo.c -lglut -lGL -lGLU -lm -o robo && ./robo
+
 #include <GL/glut.h>
 
 // Rotation

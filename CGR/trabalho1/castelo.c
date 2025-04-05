@@ -1,4 +1,4 @@
-// gcc snowman_sample.c -lglut -lGL -lGLU -lm -o snowman && ./snowman
+// gcc castelo.c -lglut -lGL -lGLU -lm -o castelo && ./castelo
  
 /*  // CORES
 glColor3f(1.0f, 0.0f, 0.0f);  // Vermelho
