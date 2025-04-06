@@ -3,47 +3,62 @@
 #include <time.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include <stdint.h>
+
 
 #define T_PAR 1
 #define T_IMPAR 2
 
 #define NELEM 2000000
 
-int v[NELEM];
+//int vet[NELEM];
 
-struct arg_st {
-     int *v;
-     char tipo;
-};
+typedef struct {
+    int *vet;
+    int tipo;
+} args_conta_t;
 
-void *conta(void *arg) {
-     long i, total = 0;
-     struct arg_st *argp = (struct arg_st *)arg;
-     int *v = argp->v;
-     char tipo = argp->tipo;
+
+void *conta(void *arg) 
+{
+    args_conta_t *args = (args_conta_t *)arg;
+    int *vet = args->vet;
+    int tipo = args->tipo;
+
+     int i, total = 0;
      
      for (i = 0; i < NELEM; i++) {
-	  if ((tipo == T_PAR) && ((v[i] % 2) == 0))
+	  if ((tipo == T_PAR) && ((vet[i] % 2) == 0))
 	      total++;
-	  else if ((tipo == T_IMPAR) && ((v[i] % 2) != 0))
-	       total++;
+	  else if ((tipo == T_IMPAR) && ((vet[i] % 2) != 0))
+	      total++;
      }
-     pthread_exit((void *)total);
+      pthread_exit((void *)(intptr_t)total);
 }
+
 
 int main(int argc, char *argv[])
 {
+     int vet[NELEM];
      int i, pares, impares, rc;
      struct timeval tv_ini, tv_fim;
      unsigned long time_diff, sec_diff, usec_diff, msec_diff;
-     pthread_t tpar, timpar;
-     struct arg_st arg_par, arg_impar;
-     void *ret;
+     pthread_t thread_impar;
+     pthread_t thread_par;
+
+    args_conta_t args_par, args_impar;
+    args_par.vet = vet;
+    args_par.tipo = T_PAR;
+
+    args_impar.vet = vet;
+    args_impar.tipo = T_IMPAR;
+
+
+     void *total_pares, *total_impares;
 
      srandom(time(NULL));
      for (i = 0; i < NELEM; i++) {
-	  v[i] = (int)random();
-/*	  vetor[i] = i*2;*/
+	  vet[i] = (int)random();
      }
      
      /* marca o tempo de inicio */
@@ -54,23 +69,11 @@ int main(int argc, char *argv[])
      }
 
      /* faz o processamento de interesse */
-     arg_par.v = v;
-     arg_par.tipo = T_PAR;
-     rc = pthread_create(&tpar, NULL, conta, (void *)&arg_par);
-     if (rc != 0) { perror("pthread_create()"); exit(1); }
-
-     arg_impar.v = v;
-     arg_impar.tipo = T_IMPAR;
-     rc = pthread_create(&timpar, NULL, conta, (void *)&arg_impar);
-     if (rc != 0) { perror("pthread_create()"); exit(1); }
-
-     rc = pthread_join(tpar, &ret);
-     if (rc != 0) { perror("pthread_join()"); exit(1); }
-     pares = (long)ret;
-
-     rc = pthread_join(timpar, &ret);
-     if (rc != 0) { perror("pthread_join()"); exit(1); }
-     impares = (long)ret;
+     rc = pthread_create(&thread_par, NULL, conta, &args_par);
+     rc = pthread_create(&thread_impar, NULL, conta, &args_impar);
+     
+     rc = pthread_join(thread_par, &total_pares);
+     rc = pthread_join(thread_impar, &total_impares);
 
      /* marca o tempo de final */
      rc = gettimeofday(&tv_fim, NULL);
@@ -81,15 +84,15 @@ int main(int argc, char *argv[])
      /* calcula a diferenca entre os tempos, em usec */
      time_diff = (1000000L*tv_fim.tv_sec + tv_fim.tv_usec) - 
   	         (1000000L*tv_ini.tv_sec + tv_ini.tv_usec);
-     /* converte para segundos + microsegundos (parte fracion�ria) */
+     /* converte para segundos + microsegundos (parte fracionária) */
      sec_diff = time_diff / 1000000L;
      usec_diff = time_diff % 1000000L;
      
      /* converte para msec */
      msec_diff = time_diff / 1000;
      
-     printf("O vetor tem %d numeros pares e %d numeros impares.\n", pares,
-	    impares);
+     printf("O vetor tem %ld numeros pares e %ld numeros impares.\n", (intptr_t)total_pares,
+	    (intptr_t)total_impares);
 /*     printf("Tempo de execucao: %lu.%06lu seg\n", sec_diff, usec_diff);*/
      printf("Tempo de execucao: %lu.%03lu mseg\n", msec_diff, usec_diff%1000);
      return 0;
