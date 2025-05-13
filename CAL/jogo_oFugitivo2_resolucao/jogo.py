@@ -74,6 +74,7 @@ class Enemy(pygame.sprite.Sprite):
 		self.rect.move_ip(mx,my)
 	'''		
 
+	# MINHA VERSAO
 	def move(self):
 			# logica "semelhante" a que eu apliquei no crab game 
 			try:
