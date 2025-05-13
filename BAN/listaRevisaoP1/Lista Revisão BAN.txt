@@ -1,0 +1,54 @@
+-- ------------- LISTA REVISAO DE ALGEBRA RELACIONAL PARA P1 ------------- 
+
+-- QUESTAO 1
+-- πid, titulo σ(cds.tipo = 'coletanea' ∨ cds.tipo = 'trilha sonora') ∧ (cds.duracao > 90 ∧ cds.duracao < 120) (cds)
+
+-- QUESTAO 2
+--  gruposBR = σnacionalidade = 'brasileiro' (interpretes)
+
+-- interpretesComCDS2013 = ρid←interprete πinterprete σano = 2013 ∧ interprete ≠ null (cds)
+
+-- cdsBR = (gruposBR ⨝ interpretesComCDS2013)
+-- cdsBR
+
+
+-- QUESTÃO 3
+-- πcds.id, cds.titulo, interpretes.tipo  σpreco > 30 ∧ cds.interprete ≠ null (cds ⟕ cds.interprete = interpretes.id interpretes)
+
+-- QUESTÃO 4
+-- vendasValidas = σ(vendas.data = date('2011-04-30') ∨ vendas.data = date('2014-05-01')) ∧ formapgto ≠ 'cartao'(vendas)
+
+-- vendasFuncionarios = vendasValidas ⟕ funcionarios.id = vendas.funcionario funcionarios 
+
+-- πexemplares.codBarras, funcionarios.nome, funcionarios.id (vendasFuncionarios ⟕ exemplares)
+
+
+-- QUESTÃO 5
+-- cdsComOK = πcd, exemplar( σstatus = 'ok' (exemplares) )
+
+-- aqui sao os que nao foram vendidos ainda
+-- cdsComOK - (πcd, exemplar (vendas) )
+
+-- QUESTÃO 6
+-- F1 = ρF1 πid, nome, turno (funcionarios)
+-- F2 = ρF2 πid, nome, turno (funcionarios)
+
+-- πF1.nome, F2.nome σF1.id ≠ null(F1 ⟖ F2.turno = F1.turno ∧ F1.nome < F2.nome (F2))
+
+
+-- QUESTÃO 7
+-- codCDSinterpretes = πinterprete σ(tipo = 'coletanea' ∨ tipo = 'interprete') ∧ interprete ≠ null(cds)
+
+-- interpretesGringos = σinterpretes.nacionalidade ≠ 'brasileiro' (interpretes ⟖ interpretes.id = cds.interprete codCDSinterpretes)
+
+-- πid, nome (interpretesGringos)
+
+-- QUESTÃO 8
+
+-- IveteInterprete = σnome = 'Ivete Sangalo'(interpretes)
+
+-- pegar o id de todos os cds com a ivete sangalo
+-- idGeral = ρcd←id πcds.id (cds ⨝ cds.interprete = interpretes.id (IveteInterprete) )
+
+-- pegar os funcionarios que fizeram vendas
+-- πfuncionarios.id, nome, cd( σturno = 'N' (funcionarios) ⨝ funcionarios.id = vendas.funcionario (vendas) ) ÷ idGeral

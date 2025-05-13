@@ -1,0 +1,48 @@
+A prova foi feita no moodle e cada aluno recebeu 5 questões diferentes, havia algumas semelhantes entre todos mas a variedade de questões com diferentes enunciados foi muito grande. Abaixo há a versão das perguntas feitas para mim:
+
+
+-- QUESTÃO 1: Elabore uma expressão em álgebra relacional que retorne id e nome de todas as classes. Para as classes que tenham navios associados, mostrar o nome dos navios. Caso a classe não possua navio associado, mostrar o nome do navio como nulo ou branco.
+
+-- πclasses.classeid, classes.nome, navios.nome (classes ⟕ (classes.classeid = navios.classeid) navios)
+
+-- ---------------------------------------------------------------------------------------------
+
+-- QUESTÃO 2: Elabore uma expressão em álgebra relacional que retorne id e nome do(s) navio(s) mais novos, isto é, com lançamento mais recente.
+
+-- NaviosComAlgumMaisVelho = πN2.nome, N2.navioid (ρN1 navios ⨝ (N1.lancamento > N2.lancamento) ρN2 navios)
+
+-- πnavios.navioid, navios.nome ( (πnome, navioid navios) - NaviosComAlgumMaisVelho)
+
+-- ---------------------------------------------------------------------------------------------
+
+-- QUESTÃO 3: Elabore uma expressão em álgebra relacional que retorne o(s) ano(s) de lançamento que estejam associados a todas as batalhas onde houve pelo menos um registro com resultado='danificado'. Observe que o ano de lançamento é um campo de navio que, por sua vez, tem registro em batalhas.
+
+-- BatalhasComRegistroDanificado_ids = πbatalhaid(σresultado = 'danificado' registros)
+
+-- abaixo so vou ter o id dos navios que participaram de TODAS as batalhas
+-- NaviosObjetivo = ( (πnavioid, batalhaid (registros) ) ÷ BatalhasComRegistroDanificado_ids)
+
+-- πlancamento (navios ⨝ (navios.navioid = encontrados.navioid) ρencontrados NaviosObjetivo)
+
+-- ---------------------------------------------------------------------------------------------
+
+
+-- QUESTÃO 4: Elabore uma expressão em álgebra relacional que retorne id e nome das classes que estejam associadas a apenas 1 navio.
+
+
+-- primerio passo: obter o id de todas as classes que estao associadas a navios
+AssociacoesClassesNavios = πclasses.classeid, navios.navioid (classes ⟕ (classes.classeid = navios.classeid) navios)
+AssociacoesClassesNavios ÷ (πclasseid classes)
+
+-- ---------------------------------------------------------------------------------------------
+
+
+-- QUESTÃO 5: Elabore uma expressão em álgebra relacional que retorne nome dos navios e nome das suas classes. Retornar apenas os dados referentes a navios que foram utilizados em batalhas em 1941.
+-- NaviosBatalhas1941_id = πregistros.navioid (registros ⨝ (registros.batalhaid = batalhas.batalhaid ∧ batalhas.data ≥ date('1941-01-01') ∧ batalhas.data ≤ date('1941-12-31')) batalhas)
+
+-- navios associados com suas classes abaixo:
+-- Objetivo = (navios ⨝ NaviosBatalhas1941_id) ⨝ (navios.classeid = classes.classeid) classes
+-- πnavios.nome, classes.nome (Objetivo)
+
+
+-- ---------------------------------------------------------------------------------------------

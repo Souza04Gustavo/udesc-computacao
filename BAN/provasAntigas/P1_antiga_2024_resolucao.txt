@@ -1,0 +1,53 @@
+------------- PROVA P1 PASSADO ----------------
+
+
+QUESTÃO 1:
+ 
+π c1.id_titular, c1.nome_titular, c2.id_titular, c2.nome_titular(
+    ρ C1 (candidatos)
+    ⋈ (C1.id_vice = C2.id_titular)
+    ρ C2 (candidatos)
+)
+
+
+QUESTÃO 2:
+
+Não otimizada:
+
+π candidatos.id, candidatos.nome (σ cidades.nome = 'Joinville' (candidatos ⋈ (candidatos.&idcidade = cidades.idcidade cidades ) )
+
+Otimziada: 
+
+π candidatos.id, candidatos.nome (candidatos ⋈ (candidatos.&idcidade = cidades.idcidade) (σ nome = 'Joinville' (cidades)))
+
+
+QUESTÃO 3:
+
+π partidos.legenda, partidos.nome, candidatos.nome (partidos ⟕ (partidos.legenda = candidatos.legenda) candidatos )
+
+
+QUESTÃO 4:
+
+idPartidoNovo = πlegenda (σnome = 'Novo' (partidos) )
+
+candidatosPartidoNovo = σlegenda = idPartidoNovo (candidatos)
+
+paresCandidatoCidade = πid, idcidade (candidatosPartidoNovo)
+
+IdCidadeComum = paresCandidatoCidade ÷ (πid candidatosPartidoNovo)
+
+Resultado_Final = π nome (IdCidadeComum ⋈ (&idcidade = idcidade) cidades)
+
+
+
+QUESTÃO 5: (CONSIDERE CAPACIDADE COMO A POPULACAO DA CIDADE)
+
+-- obter as cidades que tem uma capacidade maior que outra:
+cidadeComAlgumaCapacidadeMenor = σC1.capacidade > C2.capacidade(ρC1 Cidades ⨯ ρC2 Cidades)
+
+
+-- renomeei para melhor organizacao e filtrei so C1
+cidadesNaoMenorCapacidade = ρCidades (π C1.idCidade, C1.nome, C1.capacidade ( cidadeComAlgumaCapacidadeMenor) )
+
+π idCidade, nome (cidades - cidadesNaoMenorCapacidade)
+
