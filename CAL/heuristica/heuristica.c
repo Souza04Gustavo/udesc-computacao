@@ -1,134 +1,146 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> // Para memset
-#include <math.h>   // Para abs (valor absoluto)
+#include <string.h> 
+#include <math.h> 
 
-#define TAMANHO_MAX_MAPA 100      // Define um tamanho máximo razoável para o mapa
-#define COMPRIMENTO_MAX_CAMINHO (TAMANHO_MAX_MAPA * TAMANHO_MAX_MAPA) // Caminho máximo possível
+#define TAMANHO_MAX_MAPA_LINHAS 50
+#define TAMANHO_MAX_MAPA_COLUNAS 60 
+#define COMPRIMENTO_MAX_CAMINHO (TAMANHO_MAX_MAPA_LINHAS * TAMANHO_MAX_MAPA_COLUNAS)
 
-// Estrutura para representar um ponto com coordenadas (linha, coluna)
 typedef struct {
     int linha, coluna;
 } Ponto;
 
-// Mapa do jogo/problema. '0' é caminho livre, '1' é obstáculo.
-char mapa[TAMANHO_MAX_MAPA][TAMANHO_MAX_MAPA];
-int num_linhas, num_colunas; // Dimensões reais do mapa carregado
+char mapa[TAMANHO_MAX_MAPA_LINHAS][TAMANHO_MAX_MAPA_COLUNAS];
+int num_linhas_mapa, num_colunas_mapa; 
 
-// Array para armazenar os pontos do caminho encontrado
 Ponto caminho_encontrado[COMPRIMENTO_MAX_CAMINHO];
-int comprimento_caminho = 0; // Número atual de pontos no caminho_encontrado
+int comprimento_caminho = 0;
 
-// Grid auxiliar para marcar células que já estão no caminho atual da busca.
-// Ajuda a evitar ciclos e a não revisitar o mesmo ponto na tentativa atual.
-// 1 se está no caminho atual, 0 caso contrário.
-int no_caminho_atual[TAMANHO_MAX_MAPA][TAMANHO_MAX_MAPA];
+int no_caminho_atual[TAMANHO_MAX_MAPA_LINHAS][TAMANHO_MAX_MAPA_COLUNAS];
 
-// Função para carregar o mapa de um arquivo de texto
-int carregar_mapa(const char* nome_arquivo) {
-    FILE* arquivo = fopen(nome_arquivo, "r");
-    if (!arquivo) {
-        perror("Erro ao abrir o arquivo do mapa");
-        return 0; // Retorna 0 em caso de falha
-    }
-
-    num_linhas = 0;
-    char buffer_linha[TAMANHO_MAX_MAPA + 2]; // +1 para char, +1 para '\0'
-
-    // Lê o arquivo linha por linha
-    while (num_linhas < TAMANHO_MAX_MAPA && fgets(buffer_linha, sizeof(buffer_linha), arquivo) != NULL) {
-        if (num_linhas == 0) { // Na primeira linha, determina o número de colunas
-            num_colunas = 0;
-            while (buffer_linha[num_colunas] != '\n' && buffer_linha[num_colunas] != '\0' && num_colunas < TAMANHO_MAX_MAPA) {
-                num_colunas++;
-            }
-        }
-        // Copia os caracteres da linha lida para a matriz 'mapa'
-        for (int c = 0; c < num_colunas && c < TAMANHO_MAX_MAPA; ++c) {
-            mapa[num_linhas][c] = buffer_linha[c];
-        }
-        num_linhas++;
-    }
-    fclose(arquivo);
-
-    if (num_linhas == 0 || num_colunas == 0) {
-        fprintf(stderr, "Mapa vazio ou invalido.\n");
-        return 0;
-    }
-    return 1; // Retorna 1 em caso de sucesso
-}
-
-// Função para imprimir o mapa atual com o caminho percorrido até o momento
-void imprimir_mapa_com_caminho(Ponto inicio, Ponto fim) {
-    for (int i = 0; i < num_linhas; ++i) {
-        for (int j = 0; j < num_colunas; ++j) {
-            int esta_no_caminho_flag = 0;
-            // Verifica se a coordenada (i,j) está no caminho_encontrado
-            for(int k=0; k < comprimento_caminho; ++k) {
-                if (caminho_encontrado[k].linha == i && caminho_encontrado[k].coluna == j) {
-                    esta_no_caminho_flag = 1;
-                    break;
-                }
-            }
-
-            if (i == inicio.linha && j == inicio.coluna) printf("S"); // Ponto inicial
-            else if (i == fim.linha && j == fim.coluna) printf("E");   // Ponto final
-            else if (esta_no_caminho_flag) printf("*");                // Ponto no caminho
-            else printf("%c", mapa[i][j]);                             // Célula do mapa
+void imprimir_mapa_interno() { // Função para imprimir o mapa armazenado internamente
+    printf("--- Conteudo Interno do Mapa (%dx%d) ---\n", num_linhas_mapa, num_colunas_mapa);
+    for (int i = 0; i < num_linhas_mapa; ++i) {
+        printf("[%02d] ", i); // Imprime o número da linha para facilitar a depuração
+        for (int j = 0; j < num_colunas_mapa; ++j) {
+            printf("%c", mapa[i][j]);
         }
         printf("\n");
     }
-    printf("--------------------\n");
+    printf("---------------------------------------------------------------------------\n");
 }
 
 
-// Heurística: Distância de Manhattan.
-// Calcula a "distância em quarteirões" entre dois pontos.
-int distancia_manhattan(Ponto p1, Ponto p2) {
+int carregar_mapa(const char* nome_arquivo) { // Função para carregar o mapa de um arquivo de texto
+    FILE* arquivo = fopen(nome_arquivo, "r");
+    if (!arquivo) {
+        perror("Erro ao abrir o arquivo do mapa");
+        return 0;
+    }
+
+    num_linhas_mapa = 0;
+    num_colunas_mapa = 0; // Será determinado pela primeira linha válida
+    char buffer_linha[TAMANHO_MAX_MAPA_COLUNAS + 2]; // +1 para \n, +1 para \0
+
+    while (num_linhas_mapa < TAMANHO_MAX_MAPA_LINHAS && fgets(buffer_linha, sizeof(buffer_linha), arquivo) != NULL) {
+        // Remove o caractere de nova linha, se presente
+        buffer_linha[strcspn(buffer_linha, "\r\n")] = '\0'; // Remove \n ou \r\n
+
+        int comprimento_linha_atual = strlen(buffer_linha);
+
+        if (comprimento_linha_atual == 0 && feof(arquivo)) { // Linha vazia no final do arquivo
+            continue;
+        }
+        if (comprimento_linha_atual == 0) {
+            fprintf(stderr, "Aviso: Linha %d vazia encontrada no mapa.\n", num_linhas_mapa + 1);
+            continue; // Pula linhas vazias no meio, mas idealmente não deveriam existir
+        }
+
+
+        if (num_linhas_mapa == 0) { // Primeira linha lida (não vazia)
+            num_colunas_mapa = comprimento_linha_atual;
+            if (num_colunas_mapa > TAMANHO_MAX_MAPA_COLUNAS) {
+                fprintf(stderr, "Erro: A primeira linha do mapa excede TAMANHO_MAX_MAPA_COLUNAS (%d).\n", TAMANHO_MAX_MAPA_COLUNAS);
+                fclose(arquivo);
+                return 0;
+            }
+        } else {
+            // Verifica se as linhas subsequentes têm o mesmo comprimento
+            if (comprimento_linha_atual != num_colunas_mapa) {
+                fprintf(stderr, "Erro: Linha %d do mapa tem comprimento %d, esperado %d.\n",
+                        num_linhas_mapa + 1, comprimento_linha_atual, num_colunas_mapa);
+                fclose(arquivo);
+                return 0;
+            }
+        }
+
+        // Copia os caracteres da linha lida para a matriz 'mapa'
+        for (int c = 0; c < num_colunas_mapa; ++c) {
+            mapa[num_linhas_mapa][c] = buffer_linha[c];
+        }
+        num_linhas_mapa++;
+    }
+    fclose(arquivo);
+
+    if (num_linhas_mapa == 0) {
+        fprintf(stderr, "Mapa vazio ou nao pode ser lido.\n");
+        return 0;
+    }
+    printf("Mapa carregado: %d linhas, %d colunas\n", num_linhas_mapa, num_colunas_mapa);
+    //imprimir_mapa_interno();
+    return 1;
+}
+
+
+Ponto encontrar_zero_na_linha(int linha_alvo) {  // Função para encontrar o único '0' em uma linha específica
+    Ponto p_encontrado = {-1, -1};
+    if (linha_alvo >= 0 && linha_alvo < num_linhas_mapa) {
+        for (int c = 0; c < num_colunas_mapa; ++c) {
+            if (mapa[linha_alvo][c] == '0') {
+                p_encontrado.linha = linha_alvo;
+                p_encontrado.coluna = c;
+                break;
+            }
+        }
+    }
+    return p_encontrado; // retorna a cordenada do ponto de inicio
+}
+
+
+int distancia_manhattan(Ponto p1, Ponto p2) { // Heurística: Distância de Manhattan
     return abs(p1.linha - p2.linha) + abs(p1.coluna - p2.coluna);
 }
 
-// Verifica se um movimento para (linha, coluna) é válido:
-// 1. Dentro dos limites do mapa.
-// 2. Não é um obstáculo ('1').
-// 3. Não está já marcado como parte do caminho atual da busca recursiva.
-int eh_movimento_valido(int linha, int coluna) {
-    return linha >= 0 && linha < num_linhas && coluna >= 0 && coluna < num_colunas &&
+
+int eh_movimento_valido(int linha, int coluna) { // Verifica se um movimento para (linha, coluna) é válido
+    return linha >= 0 && linha < num_linhas_mapa && coluna >= 0 && coluna < num_colunas_mapa &&
            mapa[linha][coluna] == '0' &&
            no_caminho_atual[linha][coluna] == 0;
 }
 
-// Função recursiva principal para encontrar o caminho.
-// Tenta encontrar um caminho do 'ponto_atual' até o 'ponto_final'.
-// Retorna 1 se um caminho é encontrado, 0 caso contrário.
-int encontrar_caminho_simples(Ponto ponto_atual, Ponto ponto_final) {
-    // Adiciona o ponto atual ao caminho e marca como visitado nesta tentativa
+
+int encontrar_caminho_recursivo(Ponto ponto_atual, Ponto ponto_final) {  // Função recursiva principal para encontrar o caminho
     caminho_encontrado[comprimento_caminho++] = ponto_atual;
     no_caminho_atual[ponto_atual.linha][ponto_atual.coluna] = 1;
 
-    // Condição de parada: chegou ao destino
     if (ponto_atual.linha == ponto_final.linha && ponto_atual.coluna == ponto_final.coluna) {
-        return 1; // Sucesso!
+        return 1;
     }
 
-    // Define as direções de movimento: Direita, Baixo, Esquerda, Cima.
-    // A ordem pode influenciar o caminho encontrado, mas não a sua existência.
-    int delta_linha[] = {0, 1, 0, -1}; // Variação na linha para cada direção
-    int delta_coluna[] = {1, 0, -1, 0}; // Variação na coluna para cada direção
+    int delta_linha[] = {0, 1, 0, -1};
+    int delta_coluna[] = {1, 0, -1, 0};
 
-    Ponto melhor_proximo_movimento = {-1, -1}; // Guarda o melhor vizinho encontrado
-    int menor_distancia_ao_fim = 1000000;    // Inicializa com um valor bem grande
+    Ponto melhor_proximo_movimento = {-1, -1};
+    int menor_distancia_ao_fim = 1000000;
 
-    // Explora os vizinhos (guloso: tenta o que parece mais promissor primeiro)
-    for (int i = 0; i < 4; ++i) { // Para cada uma das 4 direções
+    for (int i = 0; i < 4; ++i) {
         int proxima_linha = ponto_atual.linha + delta_linha[i];
         int proxima_coluna = ponto_atual.coluna + delta_coluna[i];
 
         if (eh_movimento_valido(proxima_linha, proxima_coluna)) {
             Ponto vizinho = {proxima_linha, proxima_coluna};
             int distancia = distancia_manhattan(vizinho, ponto_final);
-
-            // Se este vizinho está mais perto do fim do que os anteriores testados
             if (distancia < menor_distancia_ao_fim) {
                 menor_distancia_ao_fim = distancia;
                 melhor_proximo_movimento = vizinho;
@@ -136,68 +148,83 @@ int encontrar_caminho_simples(Ponto ponto_atual, Ponto ponto_final) {
         }
     }
 
-    // Se um movimento promissor (melhor_proximo_movimento) foi encontrado
     if (melhor_proximo_movimento.linha != -1) {
-        // Tenta recursivamente a partir deste melhor movimento
-        if (encontrar_caminho_simples(melhor_proximo_movimento, ponto_final)) {
-            return 1; // Se a recursão teve sucesso, propaga o sucesso
+        if (encontrar_caminho_recursivo(melhor_proximo_movimento, ponto_final)) {
+            return 1;
         }
     }
 
-    // Backtracking: Se chegou aqui, significa que:
-    // 1. Não havia vizinhos válidos a partir do 'ponto_atual', ou
-    // 2. O 'melhor_proximo_movimento' explorado não levou a uma solução (caiu num beco sem saída).
-    // Então, remove o 'ponto_atual' do caminho e desmarca como visitado nesta tentativa.
     comprimento_caminho--;
     no_caminho_atual[ponto_atual.linha][ponto_atual.coluna] = 0;
-    return 0; // Indica falha a partir deste ponto
+    return 0;
+}
+
+
+void imprimir_mapa_com_solucao(Ponto inicio_real, Ponto fim_real) {
+    printf("\nResultado:\n");
+    for (int i = 0; i < num_linhas_mapa; ++i) {
+        for (int j = 0; j < num_colunas_mapa; ++j) {
+            char char_para_imprimir = mapa[i][j];
+            int eh_ponto_do_caminho = 0;
+
+            // Verifica se o ponto (i,j) está no caminho encontrado
+            // Não marca S ou E como # se forem parte do caminho, eles têm prioridade
+            if (!(i == inicio_real.linha && j == inicio_real.coluna) &&
+                !(i == fim_real.linha && j == fim_real.coluna)) {
+                for (int k = 0; k < comprimento_caminho; ++k) {
+                    if (caminho_encontrado[k].linha == i && caminho_encontrado[k].coluna == j) {
+                        eh_ponto_do_caminho = 1;
+                        break;
+                    }
+                }
+            }
+
+            if (i == inicio_real.linha && j == inicio_real.coluna) {
+                printf("E");  // Entrada
+            } else if (i == fim_real.linha && j == fim_real.coluna) {
+                printf("S");  // Saida
+            } else if (eh_ponto_do_caminho) {
+                printf(".");
+            } else {
+                printf("%c", char_para_imprimir);
+            }
+        }
+        printf("\n");
+    }
 }
 
 
 int main() {
     if (!carregar_mapa("mapa01.txt")) {
-        return 1; // Termina se o mapa não puder ser carregado
-    }
-
-    printf("Mapa Carregado (%d linhas, %d colunas):\n", num_linhas, num_colunas);
-
-    Ponto inicio, fim;
-    // Solicita ao usuário as coordenadas de início e fim
-    printf("Digite a linha de inicio (0 a %d): ", num_linhas - 1);
-    scanf("%d", &inicio.linha);
-    printf("Digite a coluna de inicio (0 a %d): ", num_colunas - 1);
-    scanf("%d", &inicio.coluna);
-
-    printf("Digite a linha de destino (0 a %d): ", num_linhas - 1);
-    scanf("%d", &fim.linha);
-    printf("Digite a coluna de destino (0 a %d): ", num_colunas - 1);
-    scanf("%d", &fim.coluna);
-
-    // Validação básica dos pontos de entrada
-    if (inicio.linha < 0 || inicio.linha >= num_linhas || inicio.coluna < 0 || inicio.coluna >= num_colunas ||
-        fim.linha < 0 || fim.linha >= num_linhas || fim.coluna < 0 || fim.coluna >= num_colunas ||
-        mapa[inicio.linha][inicio.coluna] == '1' || mapa[fim.linha][fim.coluna] == '1') {
-        fprintf(stderr, "Pontos de inicio ou destino invalidos ou sao obstaculos.\n");
         return 1;
     }
 
-    // Inicializa o grid 'no_caminho_atual' com zeros (nenhum ponto no caminho ainda)
+    Ponto inicio = encontrar_zero_na_linha(0);
+    if (inicio.linha == -1) {
+        fprintf(stderr, "Erro: Nao foi possivel encontrar o ponto de inicio '0' na primeira linha.\n");
+        imprimir_mapa_interno(); // Imprime o que foi carregado para ajudar na depuração
+        return 1;
+    }
+    printf("Ponto de inicio encontrado em: (%d, %d)\n", inicio.linha, inicio.coluna);
+
+    Ponto fim = encontrar_zero_na_linha(num_linhas_mapa - 1);
+    if (fim.linha == -1) {
+        fprintf(stderr, "Erro: Nao foi possivel encontrar o ponto de fim '0' na ultima linha.\n");
+        imprimir_mapa_interno(); // Imprime o que foi carregado para ajudar na depuração
+        return 1;
+    }
+    printf("Ponto de fim encontrado em: (%d, %d)\n", fim.linha, fim.coluna);
+
+
     memset(no_caminho_atual, 0, sizeof(no_caminho_atual));
 
-    // Chama a função principal de busca
-    if (encontrar_caminho_simples(inicio, fim)) {
-        printf("\nCaminho encontrado (%d passos):\n", comprimento_caminho);
-        for (int i = 0; i < comprimento_caminho; ++i) {
-            printf("(%d, %d)", caminho_encontrado[i].linha, caminho_encontrado[i].coluna);
-            if (i < comprimento_caminho - 1) {
-                printf(" -> ");
-            }
-        }
-        printf("\n\nMapa com o caminho:\n");
-        imprimir_mapa_com_caminho(inicio, fim);
-
+    if (encontrar_caminho_recursivo(inicio, fim)) {
+        printf("\nCaminho encontrado (%d passos).\n", comprimento_caminho);
+        imprimir_mapa_com_solucao(inicio, fim);
     } else {
-        printf("\nNenhum caminho encontrado.\n");
+        printf("\nNenhum caminho encontrado entre (%d,%d) e (%d,%d).\n",
+               inicio.linha, inicio.coluna, fim.linha, fim.coluna);
+        imprimir_mapa_com_solucao(inicio, fim); // Imprime o mapa com S e E mesmo sem caminho
     }
 
     return 0;
