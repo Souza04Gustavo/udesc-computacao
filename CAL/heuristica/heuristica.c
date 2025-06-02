@@ -121,40 +121,42 @@ int eh_movimento_valido(int linha, int coluna) { // Verifica se um movimento par
 
 
 int encontrar_caminho_recursivo(Ponto ponto_atual, Ponto ponto_final) {  // Função recursiva principal para encontrar o caminho
-    caminho_encontrado[comprimento_caminho++] = ponto_atual;
-    no_caminho_atual[ponto_atual.linha][ponto_atual.coluna] = 1;
+    caminho_encontrado[comprimento_caminho++] = ponto_atual;             // aduiciona o ponto atual ao caminho
+    no_caminho_atual[ponto_atual.linha][ponto_atual.coluna] = 1;         // marca como visitado
 
-    if (ponto_atual.linha == ponto_final.linha && ponto_atual.coluna == ponto_final.coluna) {
+    if (ponto_atual.linha == ponto_final.linha && ponto_atual.coluna == ponto_final.coluna) {   // verificacao para ver se chegou no destino
         return 1;
     }
 
+    // deslocamento para os vizinhos
     int delta_linha[] = {0, 1, 0, -1};
     int delta_coluna[] = {1, 0, -1, 0};
 
-    Ponto melhor_proximo_movimento = {-1, -1};
-    int menor_distancia_ao_fim = 1000000;
+    Ponto melhor_proximo_movimento = {-1, -1};  // ponto para o melhor vizinho encontrado
+    int menor_distancia_ao_fim = 1000000;       // menor distancia manhattan encontrada (chute inicial)
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 4; ++i) {               // analisa aas 4 direcoes
         int proxima_linha = ponto_atual.linha + delta_linha[i];
         int proxima_coluna = ponto_atual.coluna + delta_coluna[i];
 
-        if (eh_movimento_valido(proxima_linha, proxima_coluna)) {
-            Ponto vizinho = {proxima_linha, proxima_coluna};
-            int distancia = distancia_manhattan(vizinho, ponto_final);
-            if (distancia < menor_distancia_ao_fim) {
+        if (eh_movimento_valido(proxima_linha, proxima_coluna)) {       // o vizinho é valido?
+            Ponto vizinho = {proxima_linha, proxima_coluna};       
+            int distancia = distancia_manhattan(vizinho, ponto_final);  // heuristica do vizinho
+            if (distancia < menor_distancia_ao_fim) {                   // é o melhor vizinho?
                 menor_distancia_ao_fim = distancia;
                 melhor_proximo_movimento = vizinho;
             }
         }
     }
 
-    if (melhor_proximo_movimento.linha != -1) {
+    if (melhor_proximo_movimento.linha != -1) {  // se encontrou um vizinho valido, recursao
         if (encontrar_caminho_recursivo(melhor_proximo_movimento, ponto_final)) {
             return 1;
         }
     }
 
-    comprimento_caminho--;
+    // mini backtracking
+    comprimento_caminho--;  //tira o ponto atual do caminho
     no_caminho_atual[ponto_atual.linha][ponto_atual.coluna] = 0;
     return 0;
 }
@@ -201,22 +203,25 @@ int main() {
 
     Ponto inicio = encontrar_zero_na_linha(0);
     if (inicio.linha == -1) {
-        fprintf(stderr, "Erro: Nao foi possivel encontrar o ponto de inicio '0' na primeira linha.\n");
+        fprintf(stderr, "Erro: Nao foi possivel encontrar o ponto de entrada '0' na primeira linha.\n");
         imprimir_mapa_interno(); // Imprime o que foi carregado para ajudar na depuração
         return 1;
     }
-    printf("Ponto de inicio encontrado em: (%d, %d)\n", inicio.linha, inicio.coluna);
+    printf("Ponto de entrada encontrado em: (%d, %d)\n", inicio.linha, inicio.coluna);
 
     Ponto fim = encontrar_zero_na_linha(num_linhas_mapa - 1);
     if (fim.linha == -1) {
-        fprintf(stderr, "Erro: Nao foi possivel encontrar o ponto de fim '0' na ultima linha.\n");
+        fprintf(stderr, "Erro: Nao foi possivel encontrar o ponto de saida '0' na ultima linha.\n");
         imprimir_mapa_interno(); // Imprime o que foi carregado para ajudar na depuração
         return 1;
     }
-    printf("Ponto de fim encontrado em: (%d, %d)\n", fim.linha, fim.coluna);
+    printf("Ponto de saida encontrado em: (%d, %d)\n", fim.linha, fim.coluna);
 
-
-    memset(no_caminho_atual, 0, sizeof(no_caminho_atual));
+    for (int i = 0; i < TAMANHO_MAX_MAPA_LINHAS; ++i) {
+        for (int j = 0; j < TAMANHO_MAX_MAPA_COLUNAS; ++j) {
+            no_caminho_atual[i][j] = 0;
+        }
+    }
 
     if (encontrar_caminho_recursivo(inicio, fim)) {
         printf("\nCaminho encontrado (%d passos).\n", comprimento_caminho);
