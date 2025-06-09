@@ -11,6 +11,7 @@ Abaixo está uma lista das matérias, organizadas por suas respectivas pastas ne
 | `BAN`       | Banco de Dados I                     | `REBECA SCHROEDER FREITAS` | `2025/1`          |
 | `CAL`       | Complexidade de Algoritmos           | `LEANDRO ISRAEL PINTO` | `2025/1`          |
 | `CGR`       | Computação Gráfica                   | `ANDRE TAVARES DA SILVA` | `2025/1`          |
+| `COM`       | Compiladores                    | `CRISTIANO DAMIANI VASCONCELLOS` | `2025/1`          |
 | `EDA1`      | Estruturas de Dados I                | `GILMARIO BARBOSA DOS SANTOS` | `2024/1`          |
 | `EDA2`      | Estruturas de Dados II               | `ALLAN RODRIGO LEITE` | `2024/2`          |
 | `LFA`       | Linguagens Formais e Autômatos       | `RICARDO FERREIRA MARTINS` | `2024/2`          |
