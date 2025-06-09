@@ -6,7 +6,7 @@ Este repositório contém materiais, trabalhos, notas de aula e projetos desenvo
 
 Abaixo está uma lista das matérias, organizadas por suas respectivas pastas neste repositório.
 
-| Sigla/Pasta | Nome Completo da Matéria             | Professor(a)          | Semestre/Ano (Opcional) |
+| Sigla/Pasta | Nome Completo da Matéria             | Professor(a)          | Semestre/Ano  |
 |-------------|--------------------------------------|-----------------------|-------------------------|
 | `BAN`       | Banco de Dados I                     | `REBECA SCHROEDER FREITAS` | `2025/1`          |
 | `CAL`       | Complexidade de Algoritmos           | `LEANDRO ISRAEL PINTO` | `2025/1`          |
