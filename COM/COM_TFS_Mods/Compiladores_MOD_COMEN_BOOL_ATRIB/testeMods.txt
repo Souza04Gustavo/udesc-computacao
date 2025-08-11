@@ -1,0 +1,17 @@
+// --- testeMod.txt ---
+// Teste simples e direto para o operador de módulo (%).
+
+{
+    int resultado_par;
+    int resultado_impar;
+    
+    // Teste 1: Um número par. 10 % 2 deve ser 0.
+    resultado_par = 10 % 2;
+    print("Resultado de 10 % 2 (esperado 0):");
+    print(resultado_par);
+
+    // Teste 2: Um número ímpar. 13 % 5 deve ser 3.
+    resultado_impar = 13 % 5;
+    print("Resultado de 13 % 5 (esperado 3):");
+    print(resultado_impar);
+}

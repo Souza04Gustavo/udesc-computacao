@@ -1,0 +1,54 @@
+
+int fatorial(int n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * fatorial(n - 1);
+    }
+}
+
+float calcula_media(int a, int b) {
+    float resultado;
+    resultado = (a + b) / 2.0;
+    return resultado;
+}
+
+void verifica_status(int id, string status) {
+    if (id > 0 && (status == "ativo" || status == "pendente")) {
+        print("Status valido para o ID: ");
+        print(id);
+    } else {
+        print("Status invalido ou ID zerado.");
+    }
+    return;
+}
+
+
+{
+    int i;
+    int fat5;
+    float media;
+    string msg;
+    
+    print("--- Iniciando Teste Final ---");
+
+    fat5 = fatorial(5);
+    print("Fatorial de 5 e: ");
+    print(fat5);
+
+    media = calcula_media(fat5, 30);
+    print("A media e: ");
+    print(media);
+    
+    i = 3;
+    msg = "ativo";
+    while (i > 0) {
+        verifica_status(i, msg);
+        i = i - 1;
+        if (i == 1) {
+            msg = "inativo";
+        }
+    }
+    
+    print("--- Fim do Teste ---");
+}

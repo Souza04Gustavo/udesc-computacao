@@ -1,0 +1,28 @@
+ATUALIZACOES:
+
+Tipo primitivo Char
+Tipo primitivo Booleano
+Operador ? -> cond ? expr_verdadeira : expr_falsa
+Comando break
+Comando Switch-case
+Laço for
+Laço Do-while
+
+
+Feitas:
+Operador % MOD
+Comentarios de uma unica linha //
+Declaracao de variaveis com atribuicao -> int x = 10;
+
+
+
+
+// teste
+
+DUPLO RETURN:
+-- remover o let finalReturn = case tipoRetorno of
+--                    TVoid -> "\treturn\n" -- << PROBLEMA AQUI
+--                    _     -> ""
+-- em GenFuncao no Semantic.hs
+
+
