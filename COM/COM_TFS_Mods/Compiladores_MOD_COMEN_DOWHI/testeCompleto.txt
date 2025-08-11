@@ -1,0 +1,47 @@
+int soma(int a, int b){
+    return a + b;
+}
+
+int testeErro(int a, int b){
+    string retornoErrado;
+    retornoErrado = "Jose gato";
+    return retornoErrado;
+}
+
+
+{
+    int x;
+    int k;
+    float y;
+    int resultado;
+    string palavra;
+    int resultado2;
+    float resultado3;
+    int resultado4;
+    
+    if(x <= y){
+        x=1;       
+    }
+
+    if(x == palavra){
+        x=1;       
+    }
+
+    palavra = "Jose Lindo!!!";
+    x = 10;
+    y = 1 + 2.2;
+    k = 32;
+
+    
+    resultado2 = som(x, y);
+    resultado3 = soma(x, y);
+    resultado4 = soma(x, y, k);
+    print(divide(10,2));
+    fazAlgo();
+
+    resultado = -palavra;
+    print(x);
+    
+    y = z;
+    print(w);
+}

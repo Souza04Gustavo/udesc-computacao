@@ -1,0 +1,24 @@
+{
+    int contador;
+    int tipo_numero; // 0 para impar, 1 para par
+
+    contador = 3;
+    tipo_numero = (2 == 0) ? 1 : 0;
+
+    do {
+        
+        print(contador);
+
+        // Usa um if para imprimir a descrição
+        if (tipo_numero == 1) {
+            print(" e par.");
+        } else {
+            print(" e impar.");
+        }
+
+        contador = contador - 1;
+
+    } while (contador > 0);
+
+    print("Fim do loop!");
+}
