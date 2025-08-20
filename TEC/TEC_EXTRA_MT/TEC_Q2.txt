@@ -1,0 +1,82 @@
+; CODIGO PARA O ENUNCIADO DA QUESTÃO 2 (PSEUDOIMPLEMENTAÇÃO):
+; Reconhecer a linguagem {0^n 1^k 0^m|∃n,k,m ∈ Nn+k≤m}
+
+; ESTADO 0: Procura o primeiro 0 ou 1 não marcado.
+0 X * r 0                  ; Pula X
+0 Y * r 0                  ; Pula Y
+0 0 X r buscar_par_para_0  ; Achou um 0, marca X, vai para o fim da fita
+0 1 Y r buscar_par_para_1  ; Achou um 1, marca Y, vai para o fim da fita
+0 Z * * accept
+0 _ * * accept
+
+; ESTADO buscar_par_para_0: Move até o final da fita para começar a procurar o 0 para marcar.
+buscar_par_para_0 * * r buscar_par_para_0  ; Move para a direita sobre qualquer símbolo
+buscar_par_para_0 _ * l marcar_ultimo_0    ; Chegou ao fim, recua um para começar a marcar
+
+; ESTADO buscar_par_para_1: Move até o final da fita.
+buscar_par_para_1 * * r buscar_par_para_1  
+buscar_par_para_1 _ * l marcar_ultimo_0
+
+; ESTADO mark_last_0: Volta da direita para a esquerda procurando o primeiro 0 não marcado.
+marcar_ultimo_0 Z * l marcar_ultimo_0   ; Pula os Z que já foram marcados
+marcar_ultimo_0 0 Z l voltar_ao_inicio  ; Achou, marca 0 com Z e começa a voltar
+
+; Se não encontrar um 0 para marcar, a condição falhou. Rejeita.
+marcar_ultimo_0 Y * * reject ; Não deveria ter Y aqui, mas é uma verificação de formato
+marcar_ultimo_0 1 * * reject ; Erro de formato (ex: 0101)
+marcar_ultimo_0 X * * reject ; Acabaram os 0s de 'm'
+
+; ESTADO voltar_ao_inicio: Volta tudo para a esquerda para recomeçar o ciclo.
+voltar_ao_inicio  * * l voltar_ao_inicio  
+voltar_ao_inicio  _ * r 0 ; Chegou no início, avança um e recomeça o ciclo
+
+
+accept * * * halt-accept
+reject * * * halt-reject
+
+
+QUESTÃO 2 (VERSAO MELHORADA):
+
+; CODIGO PARA O ENUNCIADO:
+; Reconhecer a linguagem {0^n 1^k 0^m | n+k ≤ m}
+
+;-------------------------------------------------
+; ESTADO 0: Procura o primeiro 0 ou 1 não marcado.
+0 X * r 0                   ; Pula X
+0 Y * r 0                   ; Pula Y
+0 0 X r buscar_par_para_0   ; Achou um 0, marca como X, vai para o fim
+0 1 Y r buscar_par_para_1   ; Achou um 1, marca como Y, vai para o fim
+0 Z * * accept                   ; Pula Z (já marcado no bloco final)
+0 _ * * accept              ; Só sobrou marcação → aceita
+
+;-------------------------------------------------
+; ESTADO buscar_par_para_0: Move até o final da fita
+buscar_par_para_0 * * r buscar_par_para_0
+buscar_par_para_0 _ * l marcar_ultimo_m   ; Chegou no fim → vai marcar um 0 do sufixo
+
+; ESTADO buscar_par_para_1: Move até o final da fita
+buscar_par_para_1 * * r buscar_par_para_1
+buscar_par_para_1 _ * l marcar_ultimo_m   ; Também vai marcar no bloco m
+
+;-------------------------------------------------
+; ESTADO marcar_ultimo_m: procura 0 não marcado no bloco final
+marcar_ultimo_m Z * l marcar_ultimo_m     ; Pula Z já marcados
+marcar_ultimo_m 0 Z l voltar_ao_inicio    ; Achou 0 → marca como Z e volta
+marcar_ultimo_m X * r voltar_ao_inicio    ; Chegou no prefixo → volta sem marcar
+marcar_ultimo_m Y * r voltar_ao_inicio
+marcar_ultimo_m _ * r voltar_ao_inicio    ; Início da fita → volta pro começo
+marcar_ultimo_m 1 * * reject              ; Formato inválido
+
+;-------------------------------------------------
+; ESTADO voltar_ao_inicio: vai para a esquerda até o início
+voltar_ao_inicio * * l voltar_ao_inicio
+voltar_ao_inicio _ * r 0                  ; Chegou no início → volta para estado 0
+
+;-------------------------------------------------
+; Estados de aceitação/rejeição
+accept * * * halt-accept
+reject * * * halt-reject
+
+
+
+

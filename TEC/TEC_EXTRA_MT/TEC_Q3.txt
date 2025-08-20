@@ -1,0 +1,88 @@
+; ENUNCIADO DA QUESTÃO 3:
+; {w|0w′ ∨ 1w" onde 
+; 0w′tem a mesma quantidade de 0's e 1's   ( CAMINHO A)
+; e 1w" tem exatamente três 1's a mais do que 0's}  (CAMINHO B)
+
+
+; ESTADO 0:
+0 0 S r busca_prox  ; (CAMINHO A)
+0 1 _ r inicia_camB ; (CAMINHO B)
+0 _ _ * reject
+
+
+
+;----- CAMINHO B ------
+
+inicia_camB x * r inicia_camB
+inicia_camB 1 * r inicia_camB
+inicia_camB 0 x r find_1_B
+inicia_camB _ * l verifica_3
+
+find_1_B x * r find_1_B
+find_1_B 0 * r find_1_B
+find_1_B 1 x * volta_inicio_B  ; achou o 1 correspondente
+find_1_B _ * l volta_procurando_1
+
+volta_procurando_1 1 x * volta_inicio_B
+volta_procurando_1 x * l volta_procurando_1
+volta_procurando_1 0 * l volta_procurando_1
+volta_procurando_1 _ * l volta_procurando_1
+
+volta_inicio_B * * l volta_inicio_B
+volta_inicio_B _ * r inicia_camB
+
+
+; ESTADO verifica_3_uns: Inicia a contagem. Procura o primeiro 1.
+verifica_3 x * l verifica_3
+verifica_3 1 x l contou_1
+verifica_3 _ * * reject
+
+; ESTADO contou_1: Procura o segundo 1.
+contou_1 x * l contou_1
+contou_1 1 x l contou_2
+contou_1 _ * * reject
+
+; ESTADO contou_2: Procura o terceiro 1.
+contou_2 x * l contou_2
+contou_2 1 x * contou_3
+contou_2 _ * * reject
+
+; ESTADO contou_3: Procura o quarto 1.
+contou_3 x * l contou_3
+contou_3 1 * * checa_se_acabou
+contou_3 _ * * checa_se_acabou
+
+; ESTADO checa_se_acabou: Verifica se NÃO HÁ mais 1s na fita.
+checa_se_acabou x * r checa_se_acabou 
+checa_se_acabou 1 * * reject      
+checa_se_acabou _ * * accept      
+
+
+
+
+:------ CAMINHO A ------
+
+; ESTADO: busca_prox:
+busca_prox x * r busca_prox
+busca_prox 0 x r find_1
+busca_prox 1 x r find_0
+busca_prox _ * * accept
+
+; ESTADO find_1:
+find_1 x * r find_1
+find_1 0 * r find_1
+find_1 1 x l start
+find_1 _ * * reject
+
+; ESTADO: find_0:
+find_0 x * r find_0
+find_0 1 * r find_0
+find_0 0 x l start
+find_0 _ * * reject
+
+; ESTADO: start:
+start * * l start
+start S * r busca_prox
+
+accept * * * halt-accept
+reject * * * halt-reject

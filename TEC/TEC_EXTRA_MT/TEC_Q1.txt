@@ -1,0 +1,38 @@
+; CODIGO PARA O ENUNCIADO DA QUESTÃO 1:
+; Computar a seguinte função, onde a entrada 
+; é um número positivo representado em binário. 
+; f(n)= 2n (caso n seja par)
+; f(n)= n+1 (caso n seja ímpar)
+
+
+; MAQUINA COMECA NO ESTADO 0.
+
+; ESTADO 0: LE O SIMBOLO MAIS A ESQ
+0 0 * r 1o
+0 1 * r 1o
+0 _ _ * reject; Empty input
+
+; ESTADO 1o: ENCONTRA O SIMBOLO MAIS A DIR
+1o 0 * r 1o
+1o 1 * r 1o
+1o _ * l 2o ; Encontrou o fim, volta um passo para ler o último dígito
+
+; ESTADO 2o: ENCONTRA O ULTIMO SIMBOLO DA FITA
+2o 1 * * IMPAR
+2o 0 * r PAR
+
+; ESTADO IMPAR: (N+1)
+; ULTIMO SIMBOLO "1" VIRA "0"
+IMPAR 1 0 l IMPAR
+IMPAR 0 1 * accept    ; Cond.Parada 1
+IMPAR _ 1 * accept    ; Cond.Parada 2
+
+; ESTADO PAR: (2n) ESCREVE 0 NO FINAL
+PAR * 0 * accept
+
+accept * * * halt-accept
+reject * * * halt-reject
+
+
+
+

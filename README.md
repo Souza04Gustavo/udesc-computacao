@@ -21,6 +21,7 @@ Abaixo está uma lista das matérias, organizadas por suas respectivas pastas ne
 | `SID`       | Sistemas Digitais                    | `LEANDRO ISRAEL PINTO` 	        | `2024/1`     |
 | `SOFT`      | Engenharia de Software               | `REBECA SCHROEDER FREITAS`       | `2025/1`     |
 | `SOP`       | Sistemas Operacionais                | `RAFAEL RODRIGUES OBELHEIRO`     | `2025/1`     |
+| `TEC`       | Teoria da Computação                 | `KARINA GIRARDI ROGGIA`          | `2025/2`     |
 | `TEG`       | Teoria dos Grafos                    | `GILMARIO BARBOSA DOS SANTOS`    | `2024/2`     |
 
 ---
