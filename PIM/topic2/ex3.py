@@ -52,7 +52,7 @@ plt.axis('off') # nao mostrar os eixos
 plt.subplot(2, 2, 2)
 plt.imshow(cinza_luminosidade, cmap='gray')
 plt.title('Cinza - Luminosidade')
-plt.axis('off')
+plt.axis('off') # converter de BGR para RGB
 
 # --- Metodo da media ---
 plt.subplot(2, 2, 3)
