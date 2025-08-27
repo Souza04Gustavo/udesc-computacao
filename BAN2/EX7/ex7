@@ -1,0 +1,154 @@
+-- EXERCICIO 7
+
+-- 1)      Função para inserção de um mecânico.
+/*
+CREATE OR REPLACE FUNCTION addMecanico(pcodm int, pcpf char(11), 
+	pnome varchar(50), pidade int, pendereco varchar(500), pcidade varchar(500), 
+	pfuncao varchar(500), pcods int) RETURNS int as 
+$$
+DECLARE
+	qnt int default 0;
+BEGIN
+	insert into mecanico values(pcodm, pcpf, pnome, pidade, pendereco, pcidade, pfuncao, pcods);
+	get diagnostics qnt = row_count;
+	return qnt;
+	raise notice 'Quantidade de registros alterados: %', qnt;
+END;
+$$
+language plpgsql
+*/
+
+-- ------------------------------------------------------------------------------
+
+-- 2)      Função para exclusão de um mecânico.
+/*
+CREATE OR REPLACE FUNCTION deleteMecanico(pcodm int) RETURNS int as 
+$$
+DECLARE
+	qnt int default 0;
+BEGIN
+	delete from mecanico where codm = pcodm;
+	get diagnostics qnt = row_count;
+	return qnt;
+	raise notice 'Quantidade de registros alterados: %', qnt;
+END;
+$$
+language plpgsql
+*/
+
+
+-- -----------------------------------------------------------------------------
+
+-- 3) Função única para inserção, atualizar e exclusão de um cliente.
+/*
+CREATE OR REPLACE FUNCTION modCliente(popcao int, pcodc int, 
+	pcpf char(11), pnome varchar(50), pidade int, pendereco varchar(500), 
+	pcidade varchar(500)) RETURNS int as 
+$$
+DECLARE
+	qnt int default 0;
+BEGIN
+	-- INSERIR
+	IF popcao = 1 THEN
+		insert into cliente values(pcodc, pcpf, pnome, pidade, pendereco, pcidade);
+		get diagnostics qnt = row_count;
+		raise notice 'Quantidade de registros inseridos: %', qnt;
+		return qnt;
+		
+	-- DELETAR
+	ELSIF popcao = 2 THEN
+		delete from cliente where codc = pcodc;
+		get diagnostics qnt = row_count;
+		raise notice 'Quantidade de registros alterados: %', qnt;
+		return qnt;
+	
+	-- ALTERAR
+	ELSIF popcao = 3 THEN
+
+		UPDATE cliente
+        SET
+          cpf = pcpf,
+          nome = pnome,
+          idade = pidade,
+          endereco = pendereco,
+          cidade = pcidade
+        WHERE codc = pcodc;
+        
+        GET DIAGNOSTICS qnt = ROW_COUNT;
+        RAISE NOTICE 'Quantidade de registros atualizados: %', qnt;
+        RETURN qnt;
+		
+	ELSE
+		raise notice 'Opção não selecionada corretamente';
+		return 0;
+	
+	END IF;
+	
+END;
+$$
+language plpgsql
+*/
+
+
+-- -----------------------------------------------------------------------------
+
+-- 4)      Função que limite o cadastro de no máximo 10 setores na oficina mecânica.
+/*
+CREATE OR REPLACE FUNCTION  addSetor(pcods int, pnome varchar(50)) RETURNS int as 
+$$
+DECLARE
+	qnt int default 0;
+	qnt_setores int default 0;
+BEGIN
+	-- atribuicao para uma variavel
+	select count(*) into qnt_setores from setor;
+	IF qnt_setores < 10 THEN
+		insert into setor values(pcods, pnome);
+		get diagnostics qnt = row_count;
+		raise notice 'Quantidade de registros inseridos: %', qnt;
+		return qnt;
+	ELSE
+		RAISE NOTICE 'Não foi possível inserir. A oficina já atingiu o limite de 10 setores.';
+		return 0;
+	END IF;
+	
+END;
+$$
+language plpgsql
+*/
+
+-- -----------------------------------------------------------------------------
+
+-- 5)      Função que limita o cadastro de um conserto apenas se o mecânico não tiver mais de 3 consertos agendados para o mesmo dia.
+
+
+
+
+
+-- -----------------------------------------------------------------------------
+
+-- 6)      Função para calcular a média geral de idade dos Mecânicos e Clientes.
+
+
+
+
+-- -----------------------------------------------------------------------------
+
+-- 7)      Função única que permita fazer a exclusão de um Setor, Mecânico, Cliente ou Veículo.
+
+
+
+
+-- -----------------------------------------------------------------------------
+
+-- 8)      Considerando que na tabela Cliente apenas codc é a chave primária, faça uma função que remova clientes com CPF repetido, deixando apenas um cadastro para cada CPF. Escolha o critério que preferir para definir qual cadastro será mantido: aquele com a menor idade, que possuir mais consertos agendados, etc. Para testar a função, não se esqueça de inserir na tabela alguns clientes com este problema.
+
+
+
+
+-- -----------------------------------------------------------------------------
+
+-- 9)   Função para calcular se o CPF é válido*.
+
+
+
