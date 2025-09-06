@@ -1,0 +1,141 @@
+-- TRABALHO 1 - PARTE 2: DML-SQL
+-- SCRIPT DE POPULAÇÃO DO BANCO DE DADOS PARA SISTEMA DE AGENDAMENTO
+
+-- ========= LIMPEZA DAS TABELAS (EM ORDEM REVERSA DE CRIAÇÃO) =========
+-- Isso permite que o script seja executado várias vezes sem erros de chaves duplicadas.
+DELETE FROM AGENDAMENTO_MATERIAL;
+DELETE FROM EVENTO_QUADRA;
+DELETE FROM QUADRA_ESPORTE;
+DELETE FROM CHAMADO_MANUTENCAO;
+DELETE FROM AGENDAMENTO;
+DELETE FROM EXTRAORDINARIO;
+DELETE FROM RECORRENTE;
+DELETE FROM EVENTO;
+DELETE FROM BOLSISTA;
+DELETE FROM NAO_BOLSISTA;
+DELETE FROM ADMIN;
+DELETE FROM FUNCIONARIO;
+DELETE FROM ALUNO;
+DELETE FROM SERVIDOR;
+DELETE FROM USUARIO;
+DELETE FROM MATERIAL_ESPORTIVO;
+DELETE FROM QUADRA;
+DELETE FROM GINASIO;
+DELETE FROM ESPORTE;
+
+
+-- ========= 1. INSERINDO DADOS BASE (SEM DEPENDÊNCIAS) =========
+
+-- Inserindo Ginásios
+INSERT INTO GINASIO (id_ginasio, nome, endereco, capacidade) VALUES
+(1, 'Ginásio Central', 'Rua Principal, 123', 1500),
+(2, 'Ginásio Anexo B', 'Rua Secundária, 456', 300);
+
+-- Inserindo Esportes
+INSERT INTO ESPORTE (id_esporte, nome, max_jogadores) VALUES
+(1, 'Futsal', 10),
+(2, 'Voleibol', 12),
+(3, 'Basquete', 10),
+(4, 'Tênis', 4),
+(5, 'Vôlei de Areia', 4);
+
+-- Inserindo Usuários (senha é 'senha123', em um sistema real seria um hash bcrypt)
+INSERT INTO USUARIO (cpf, nome, email, senha, data_nasc, status) VALUES
+('11111111111', 'Ana Silva', 'ana.silva@udesc.br', '$2b$10$abcdef...', '2002-05-15', 'ativo'),
+('22222222222', 'Bruno Costa', 'bruno.costa@udesc.br', '$2b$10$abcdef...', '2001-03-20', 'ativo'),
+('33333333333', 'Carla Dias', 'carla.dias@udesc.br', '$2b$10$abcdef...', '2003-08-10', 'ativo'),
+('44444444444', 'Daniel Souza', 'daniel.souza@udesc.br', '$2b$10$abcdef...', '1990-11-01', 'ativo'),
+('55555555555', 'Eduardo Lima', 'eduardo.lima@udesc.br', '$2b$10$abcdef...', '1985-01-25', 'ativo'),
+('66666666666', 'Fernanda Moreira', 'fernanda.m@udesc.br', '$2b$10$abcdef...', '2002-09-30', 'inativo'); -- Usuária inativa
+
+-- ========= 2. INSERINDO DADOS DEPENDENTES (NÍVEL 1) =========
+
+-- Inserindo Alunos
+INSERT INTO ALUNO (cpf, matricula, curso, ano_inicio) VALUES
+('11111111111', '20220101', 'Engenharia de Software', 2022),
+('22222222222', '20210202', 'Educação Física', 2021),
+('33333333333', '20230103', 'Ciência da Computação', 2023),
+('66666666666', '20220204', 'Design Gráfico', 2022);
+
+-- Inserindo Servidores
+INSERT INTO SERVIDOR (cpf, id_servidor, data_admissao) VALUES
+('44444444444', 'S001', '2015-02-10'),
+('55555555555', 'S002', '2010-07-20');
+
+-- Inserindo Quadras
+INSERT INTO QUADRA (id_ginasio, num_quadra, capacidade, tipo_piso, cobertura, status) VALUES
+(1, 1, 50, 'Taco de Madeira', true, 'disponivel'), -- Quadra Poliesportiva
+(1, 2, 20, 'Saibro', false, 'disponivel'),       -- Quadra de Tênis
+(2, 1, 30, 'Areia', false, 'manutencao');       -- Quadra de Vôlei de Areia
+
+-- Inserindo Materiais Esportivos
+INSERT INTO MATERIAL_ESPORTIVO (id_material, id_ginasio, nome, marca, status, qnt_total, qnt_disponivel) VALUES
+(1, 1, 'Bola de Futsal', 'Penalty', 'bom', 10, 8),
+(2, 1, 'Bola de Vôlei', 'Mikasa', 'bom', 15, 15),
+(3, 1, 'Rede de Tênis', 'Master Rede', 'manutencao', 2, 1);
+
+
+-- ========= 3. INSERINDO DADOS DE ESPECIALIZAÇÕES (NÍVEL 2) =========
+
+-- Inserindo Alunos Não Bolsistas
+INSERT INTO NAO_BOLSISTA (cpf) VALUES
+('11111111111'),
+('22222222222');
+
+-- Inserindo Alunos Bolsistas
+INSERT INTO BOLSISTA (cpf, valor_remuneracao, carga_horaria, horario_inicio, horario_fim, id_supervisor_servidor) VALUES
+('33333333333', 700.00, 20, '13:00:00', '17:00:00', 'S001'); -- Carla é supervisionada por Daniel Souza
+
+-- Inserindo Funcionários
+INSERT INTO FUNCIONARIO (cpf, departamento, cargo) VALUES
+('44444444444', 'Manutenção e Zeladoria', 'Técnico de Manutenção');
+
+-- Inserindo Administradores
+INSERT INTO ADMIN (cpf, nivel_acesso, area_responsabilidade) VALUES
+('55555555555', 1, 'Gestão Geral do Sistema');
+
+-- ========= 4. INSERINDO EVENTOS, AGENDAMENTOS E CHAMADOS =========
+
+-- Inserindo um Evento (organizado pelo Admin Eduardo)
+INSERT INTO EVENTO (id_evento, cpf_admin_organizador, nome, descricao) VALUES
+(1, '55555555555', 'Jogos Intercursos 2025', 'Competições anuais entre os cursos da UDESC.');
+
+-- Especificando o tipo do Evento (Extraordinário)
+INSERT INTO EXTRAORDINARIO (id_evento, data_hora_inicio, data_hora_fim) VALUES
+(1, '2025-10-20 08:00:00', '2025-10-25 18:00:00');
+
+-- Inserindo Agendamentos
+-- Agendamento normal feito pela aluna Ana Silva
+INSERT INTO AGENDAMENTO (id_agendamento, cpf_usuario, id_ginasio, num_quadra, hora_ini, hora_fim, motivo, status_agendamento) VALUES
+(1, '11111111111', 1, 1, '2025-09-10 19:00:00', '2025-09-10 20:00:00', 'Treino de Futsal da Atlética', 'confirmado');
+-- Agendamento feito pela bolsista Carla em nome do aluno Bruno Costa
+INSERT INTO AGENDAMENTO (id_agendamento, cpf_usuario, id_ginasio, num_quadra, hora_ini, hora_fim, motivo, status_agendamento, id_bolsista_operador, data_operacao_bolsista) VALUES
+(2, '22222222222', 1, 2, '2025-09-12 10:00:00', '2025-09-12 11:30:00', 'Aula de Tênis', 'confirmado', '33333333333', CURRENT_TIMESTAMP);
+-- Agendamento cancelado
+INSERT INTO AGENDAMENTO (id_agendamento, cpf_usuario, id_ginasio, num_quadra, hora_ini, hora_fim, motivo, status_agendamento) VALUES
+(3, '11111111111', 1, 1, '2025-09-05 18:00:00', '2025-09-05 19:00:00', 'Jogo Amistoso', 'cancelado');
+
+
+-- Inserindo um Chamado de Manutenção (aberto pela Ana)
+INSERT INTO CHAMADO_MANUTENCAO (id_cha, cpf_usuario_abriu, id_ginasio, num_quadra, descricao) VALUES
+(1, '11111111111', 1, 1, 'Um dos refletores da quadra poliesportiva está queimado.');
+
+
+-- ========= 5. INSERINDO DADOS NAS TABELAS DE JUNÇÃO (N:M) =========
+
+-- Associando Quadras com Esportes
+INSERT INTO QUADRA_ESPORTE (id_ginasio, num_quadra, id_esporte) VALUES
+(1, 1, 1), -- Poliesportiva -> Futsal
+(1, 1, 2), -- Poliesportiva -> Voleibol
+(1, 1, 3), -- Poliesportiva -> Basquete
+(1, 2, 4); -- Tênis -> Tênis
+
+-- Associando Eventos com Quadras (bloqueando a quadra)
+INSERT INTO EVENTO_QUADRA (id_evento, id_ginasio, num_quadra) VALUES
+(1, 1, 1); -- Jogos Intercursos bloqueiam a Quadra Poliesportiva
+
+-- Associando Agendamentos com Materiais
+INSERT INTO AGENDAMENTO_MATERIAL (id_agendamento, id_material, quantidade_solicitada) VALUES
+(1, 1, 2); -- O treino de futsal da Ana solicitou 2 bolas de futsal
+
+-- ========= FIM DO SCRIPT DE POPULAÇÃO =========

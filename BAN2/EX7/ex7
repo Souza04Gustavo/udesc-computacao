@@ -142,9 +142,33 @@ language plpgsql
 
 
 -- -----------------------------------------------------------------------------
-
 /*
 -- 6) Função para calcular a média geral de idade dos Mecânicos e Clientes.
+-- VERSÃO USANDO FOR:
+CREATE OR REPLACE FUNCTION mediaIdadesManual() returns float as
+$$
+declare
+	cont int default 0;
+	soma_idade FLOAT DEFAULT 0;
+	v_idade mecanico.idade%type default 0;
+begin
+	for v_idade in select idade from mecanico loop
+		soma_idade := soma_idade + v_idade;
+		cont := cont+1;
+		raise notice 'Idade func %: %', cont, v_idade;
+	end loop;
+	for v_idade in select idade from cliente loop
+		soma_idade := soma_idade + v_idade;
+		cont := cont+1;
+		raise notice 'Idade cli %: %', cont, v_idade;
+
+	end loop;
+	return soma_idade / cont;
+end;
+$$
+language plpgsql
+
+-- VERSÃO DIRETA:
 CREATE OR REPLACE FUNCTION mediaIdades() returns float as
 $$
 declare
@@ -159,7 +183,6 @@ end;
 $$
 language plpgsql
 */
-
 
 -- -----------------------------------------------------------------------------
 /*
@@ -193,6 +216,19 @@ end;
 $$
 language plpgsql
 */
+
+
+-- funcao auxiliar que o professor fez para auxiliar na exclusao de uma linha para estudar a concatenacao de strings
+/*
+create or replace function excluiSetor(chave varchar[], valor varchar[] ) returns void as
+$$
+begin
+	execute 'delete from setor where ' || chave[1]||' = ' || valor[1];
+end;
+$$
+language plpgsql
+*/
+
 
 -- -----------------------------------------------------------------------------
 
