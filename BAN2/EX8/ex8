@@ -188,20 +188,35 @@ create or replace trigger consertoHorasExtras before update or insert
 
 -- 8) Gatilho para impedir que mais de 1 conserto seja agendado no mesmo setor na mesma hora. 
 
-create or replace function empedirConsertoMesmaHora() returns trigger as
-$$
-begin
-	IF ( (SELECT COUNT(*) from conserto where hora = new.hora) > 1 ) THEN
-		raise exception 'Mais de um conserto registrado para o mesmo horario!';
-	end if;
-	return new;
-end;
-$$
-language plpgsql;
+CREATE OR REPLACE FUNCTION impedir_conflito_setor_hora()
+RETURNS TRIGGER AS $$
+DECLARE
+    setor_do_novo_conserto int;
+BEGIN
+    SELECT cods INTO setor_do_novo_conserto FROM mecanico WHERE codm = NEW.codm;
+    
+    IF setor_do_novo_conserto IS NULL THEN
+        RETURN NEW;
+    END IF;
 
-create or replace trigger empedirMaisDeUmConsertoNaMesmaHora before update or insert 
-	on conserto for each row execute procedure empedirConsertoMesmaHora();
+    IF EXISTS (
+        SELECT 1  -- O valor '1' é apenas um placeholder, não importa.
+        FROM conserto co
+        JOIN mecanico m ON co.codm = m.codm
+        WHERE
+            m.cods = setor_do_novo_conserto AND -- Condição 1: Mesmo setor
+            co.data = NEW.data AND             -- Condição 2: Mesma data
+            co.hora = NEW.hora                 -- Condição 3: Mesma hora
+    ) THEN
+        RAISE EXCEPTION 'Conflito de agendamento: Já existe um conserto no setor % para a data % às %.',
+                        setor_do_novo_conserto, NEW.data, NEW.hora;
+    END IF;
 
-select * from conserto
+    RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_impede_conflito_setor_hora BEFORE INSERT OR UPDATE ON conserto FOR EACH ROW EXECUTE FUNCTION impedir_conflito_setor_hora();
 
 
