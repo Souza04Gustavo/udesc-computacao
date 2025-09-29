@@ -75,12 +75,27 @@ select * from setor
 -- ====================================================================================== 
 -- 5) Atualize o nome das cidades dos mecânicos e clientes para maiúsculo em uma única transação.
 
-
+begin transaction;
+	update mecanico set cidade = upper(cidade);
+	update cliente set cidade = upper(cidade);
+end transaction;
 
 -- ====================================================================================== 
 -- 6) Concatene na frente do nome dos mecânicos a abreviação 'Mec. ' e no nome do clientes a abreviação 'Cli. ' em uma única transação.
 
+begin transaction;
+	update mecancio set nome = 'Mec.' || nome;
+	update cliente set nome = 'Cli.' || nome;
+end transaction;
 
 
 -- ====================================================================================== 
 -- 7) Atualize o cods dos mecânicos alocados no setor 3 para 4 e exclua o setor de cods 3.
+
+
+begin transaction;
+	update mecanico set cods = 4 where cods = 3;
+	delete from setor where cods=3;
+
+end transaction;
+
