@@ -1,0 +1,41 @@
+------------------------------------------------------------------------------
+
+Dia: 04/03/2026
+Assunto: Primeiro dia de aula aula mesmo
+
+COMANDO PARA EXECUTAR O COQ:
+
+souza@machine:~/Downloads/lf$ coqide Basics.v
+
+
+
+DOIS CONCEITOS APRESENTADOS:
+
+-> Transparencia referencial 
+-> Efeito colateral
+
+Professor deu o seguinte exemplo de função:
+
+int n = 0;
+
+int foo (int x)
+{
+	n++;
+	return n+x;
+}
+
+Ela não tem transparencia referencial, pois toda vez chamada pode ter um retorno diferente.
+
+Professor comentou sobre Lógica de Hoare (será um dos possiveis temas do trabalho).
+
+A linguagem do CoqIDE é ML.
+
+
+
+
+Proof unfold odd. simpl. reflexivity. Qed.
+
+
+------------------------------------------------------------------------------
+
+
