@@ -752,6 +752,8 @@ Fixpoint plus (n : nat) (m : nat) : nat :=
 (** Adding three to two gives us five (whew!): *)
 
 Compute (plus 3 2).
+Compute (4 + 3).
+
 (* ===> 5 : nat *)
 
 (** The steps of simplification that Rocq performs here can be
@@ -916,17 +918,16 @@ Proof. simpl. reflexivity.  Qed.
     function.  It can be done with just one previously defined
     function, but you can use two if you want. *)
 
-Definition ltb (n m : nat) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition ltb (n m : nat) : bool :=  (S n) <=? m.
 
 Notation "x <? y" := (ltb x y) (at level 70) : nat_scope.
 
 Example test_ltb1:             (ltb 2 2) = false.
-(* FILL IN HERE *) Admitted.
+Proof. unfold ltb. simpl. reflexivity. Qed.
 Example test_ltb2:             (ltb 2 4) = true.
-(* FILL IN HERE *) Admitted.
+Proof. unfold ltb. simpl. reflexivity. Qed.
 Example test_ltb3:             (ltb 4 2) = false.
-(* FILL IN HERE *) Admitted.
+Proof. unfold ltb. simpl. reflexivity. Qed.
 (** [] *)
 
 (* ################################################################# *)
@@ -1020,7 +1021,7 @@ Proof.
 
 Theorem plus_1_l : forall n:nat, 1 + n = S n.
 Proof.
-  intros n. reflexivity.  Qed.
+  intros n. reflexivity.  Qed.  
 
 Theorem mult_0_l : forall n:nat, 0 * n = 0.
 Proof.
@@ -1090,8 +1091,10 @@ Proof.
 Theorem plus_id_exercise : forall n m o : nat,
   n = m -> m = o -> n + m = m + o.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n m o. intros h1 h2.
+  rewrite -> h1.
+  rewrite <- h2.
+  reflexivity. Qed.
 
 (** The [Admitted] command tells Rocq that we want to skip trying
     to prove this theorem and just accept it as a given.  This is
@@ -1156,7 +1159,7 @@ Proof.
     use the [Abort] command to give up on it for the moment.)*)
 
 Theorem plus_1_neq_0_firsttry : forall n : nat,
-  (n + 1) =? 0 = false.
+  (0 + 1) =? 0 = false.
 Proof.
   intros n.
   simpl.  (* does nothing! *)
