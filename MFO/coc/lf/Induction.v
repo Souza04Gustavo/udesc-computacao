@@ -197,9 +197,9 @@ Abort.
 
 Theorem add_0_r : forall n:nat, n + 0 = n.
 Proof.
-  intros n. induction n as [| n' IHn'].
-  - (* n = 0 *)    reflexivity.
-  - (* n = S n' *) simpl. rewrite -> IHn'. reflexivity.  Qed.
+  intros n. induction n as [| b IH ].
+  - (* n = 0 *)  simpl. reflexivity.
+  - (* n = S n' *) simpl. rewrite -> IH. reflexivity.  Qed.
 
 (** Like [destruct], the [induction] tactic takes an [as...]
     clause that specifies the names of the variables to be introduced
@@ -243,7 +243,16 @@ Proof.
 Theorem mul_0_r : forall n:nat,
   n * 0 = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [| n IH].
+  - (* n = 0 *) simpl. reflexivity.
+  
+
+ (**
+  induction n as [| b IH ].
+  - (* n = 0 *)  simpl. reflexivity.
+  - (* n = S n' *) simpl. rewrite -> IH. reflexivity.  Qed.
+  Admitted.
+  **)
 
 Theorem plus_n_Sm : forall n m : nat,
   S (n + m) = n + (S m).

@@ -101,6 +101,18 @@ Proof.
   rewrite -> h1.
   rewrite <- h2.
   reflexivity. Qed.
+  
+------------------------------------------------------------------------------
+
+  
+DATA: 18/03/26  
+  
+Aula sobre deduções!
+
+Eis aqui como fazer a execução do modulo de deduções no terminal:
+
+souza@machine:~/Documents/GitHub/udesc-computacao/MFO/coc/lf$ coqc -Q . lf Basics.v
+
 
 
 
