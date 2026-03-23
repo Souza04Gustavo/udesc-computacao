@@ -5,7 +5,9 @@ Assunto: Primeiro dia de aula aula mesmo
 
 COMANDO PARA EXECUTAR O COQ:
 
-souza@machine:~/Downloads/lf$ coqide Basics.v
+cd Documents/GitHub/udesc-computacao/MFO/coc/lf
+
+coqide
 
 
 
