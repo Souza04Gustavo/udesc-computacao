@@ -163,6 +163,13 @@ Definition mylist := cons 1 (cons 2 (cons 3 nil)).
 
 Notation "x :: l" := (cons x l)
                      (at level 60, right associativity).
+
+(*
+No caso:  1::2::3::MIL 
+- A associação é da direita para a esquerda como definido anteriormente
+*)
+
+
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y ]" := (cons x .. (cons y nil) ..).
 
@@ -241,6 +248,8 @@ Fixpoint app (l1 l2 : natlist) : natlist :=
   | h :: t => h :: (app t l2)
   end.
 
+Compute ( app [10;2] [1;3]).
+
 (** Since [app] will be used extensively, it is again convenient
     to have an infix operator for it. *)
 
@@ -291,15 +300,29 @@ Proof. reflexivity. Qed.
     [countoddmembers] below. Have a look at the tests to understand
     what these functions should do. *)
 
-Fixpoint nonzeros (l:natlist) : natlist
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint nonzeros (l:natlist) : natlist :=
+  match l with
+  | nil => l
+  | 0 :: t => (nonzeros t)
+  | h :: t => h :: (nonzeros t)
+  end.
+
+Compute ( nonzeros [1;0;2;0;3;0;0;0]).
 
 Example test_nonzeros:
   nonzeros [0;1;0;2;3;0;0] = [1;2;3].
-  (* FILL IN HERE *) Admitted.
+  Proof.
+  simpl. reflexivity.
+  Qed.
 
-Fixpoint oddmembers (l:natlist) : natlist
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint oddmembers (l : natlist) : natlist :=
+  match l with
+  | nil => nil
+  | h :: t => 
+      if odd h 
+      then h :: oddmembers t
+      else oddmembers t
+  end.
 
 Example test_oddmembers:
   oddmembers [0;1;0;2;3;0;0] = [1;3].

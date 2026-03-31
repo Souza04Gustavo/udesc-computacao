@@ -118,6 +118,13 @@ souza@machine:~/Documents/GitHub/udesc-computacao/MFO/coc/lf$ coqc -Q . lf Basic
 
 
 
+-------------------------------------------------------------------------------
+
+DATA 30/03/26
+
+- Ver definição de recursão estrutural pois pode ser cobrado em prova.
+-> Um dos paramatros tem sempre que decrescer (a principio)
+
 
 
 

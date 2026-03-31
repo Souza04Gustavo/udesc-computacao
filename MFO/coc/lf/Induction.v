@@ -525,10 +525,6 @@ Proof.
     Proof: (* FILL IN HERE *)
 *)
 
-(* Do not modify the following line: *)
-Definition manual_grade_for_add_comm_informal : option (nat*string) := None.
-(** [] *)
-
 (** **** Exercise: 2 stars, standard, optional (eqb_refl_informal)
 
     Write an informal proof of the following theorem, using the
@@ -539,10 +535,6 @@ Definition manual_grade_for_add_comm_informal : option (nat*string) := None.
 
     Proof: (* FILL IN HERE *)
 *)
-
-(* Do not modify the following line: *)
-Definition manual_grade_for_eqb_refl_informal : option (nat*string) := None.
-(** [] *)
 
 (* ################################################################# *)
 (** * More Exercises *)
