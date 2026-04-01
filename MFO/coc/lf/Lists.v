@@ -127,19 +127,18 @@ Proof.
     one subgoal here.  That's because [natprod]s can only be
     constructed in one way. *)
 
-(** **** Exercise: 1 star, standard (snd_fst_is_swap) *)
 Theorem snd_fst_is_swap : forall (p : natprod),
   (snd p, fst p) = swap_pair p.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+    intros p. destruct p as [n m]. simpl. reflexivity.
+Qed.
 
-(** **** Exercise: 1 star, standard, optional (fst_swap_is_snd) *)
 Theorem fst_swap_is_snd : forall (p : natprod),
   fst (swap_pair p) = snd p.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros p. destruct p as [n m]. simpl. reflexivity.
+Qed.  
+
 
 (* ################################################################# *)
 (** * Lists of Numbers *)
@@ -326,7 +325,9 @@ Fixpoint oddmembers (l : natlist) : natlist :=
 
 Example test_oddmembers:
   oddmembers [0;1;0;2;3;0;0] = [1;3].
-  (* FILL IN HERE *) Admitted.
+  Proof.
+    simpl. reflexivity.
+  Qed.
 
 (** For the next problem, [countoddmembers], we're giving you a header
     that uses the keyword [Definition] instead of [Fixpoint].  The
@@ -334,8 +335,12 @@ Example test_oddmembers:
     implement the function by using already-defined functions, rather
     than writing your own recursive definition. *)
 
-Definition countoddmembers (l:natlist) : nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+
+Fixpoint countoddmembers (l:natlist) : nat :=
+  match l with
+  | nil => 0
+  | h::t => if odd h then 1 + (countoddmembers t) else (countoddmembers t) 
+  end.  
 
 Example test_countoddmembers1:
   countoddmembers [1;0;3;1;4;5] = 4.
@@ -364,25 +369,30 @@ Example test_countoddmembers3:
     lists at the same time with the "multiple pattern" syntax we've
     seen before. *)
 
-Fixpoint alternate (l1 l2 : natlist) : natlist
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint alternate (l1 l2 : natlist) : natlist :=
+  match l1, l2 with
+  | nil, l2' => l2'
+  | l1', nil => l1'
+  | h1::t1, h2::t2 => h1::h2::alternate t1 t2
+  end.
+  
 
 Example test_alternate1:
   alternate [1;2;3] [4;5;6] = [1;4;2;5;3;6].
-  (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example test_alternate2:
   alternate [1] [4;5;6] = [1;4;5;6].
-  (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example test_alternate3:
   alternate [1;2;3] [4] = [1;4;2;3].
-  (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example test_alternate4:
   alternate [] [20;30] = [20;30].
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+Proof. reflexivity. Qed.
+
 
 (* ----------------------------------------------------------------- *)
 (** *** Bags via Lists *)
@@ -398,15 +408,17 @@ Definition bag := natlist.
     Complete the following definitions for the functions [count],
     [sum], [add], and [member] for bags. *)
 
-Fixpoint count (v : nat) (s : bag) : nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint count (v : nat) (s : bag) : nat :=
+  match s with
+  | nil => 0
+  | h::t => if v =? h then 1 + count v t else count v t 
+  end.
 
-(** All these proofs can be completed with [reflexivity]. *)
 
 Example test_count1:              count 1 [1;2;3;1;4;1] = 3.
- (* FILL IN HERE *) Admitted.
+  Proof. reflexivity. Qed.
 Example test_count2:              count 6 [1;2;3;1;4;1] = 0.
- (* FILL IN HERE *) Admitted.
+ Proof. reflexivity. Qed. 
 
 (** Multiset [sum] is similar to set [union]: [sum a b] contains all
     the elements of [a] and those of [b].  (Mathematicians usually
