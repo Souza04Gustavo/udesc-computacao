@@ -515,9 +515,14 @@ Proof.
 Qed.
 *)
 
+
+
+
 (* Do not modify the following line: *)
+(*
 Definition manual_grade_for_add_inc_count : option (nat*string) := None.
-(** [] *)
+*)
+
 
 (* ################################################################# *)
 (** * Reasoning About Lists *)
@@ -526,9 +531,16 @@ Definition manual_grade_for_add_inc_count : option (nat*string) := None.
     functions can sometimes be proved entirely by simplification.  For
     example, just [reflexivity] is enough for this theorem... *)
 
+
+
+
+
+(*
 Theorem nil_app : forall l : natlist,
   [] ++ l = l.
 Proof. reflexivity. Qed.
+*)
+
 
 (** ...because the [[]] is substituted into the "scrutinee" (the
     expression whose value is being "scrutinized" by the match) in the
