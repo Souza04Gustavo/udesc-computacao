@@ -140,7 +140,11 @@ DATA 06/04/26
 
 ------------------------------------------------------------------------------
 
+DATA 08/04/26
 
+Valores de primeira classe: ele não possui restrições especiais e pode ser manipulado da mesma forma que qualquer outro dado comum (como inteiros, strings ou objetos).
+
+Funções de ordem superior: é uma função que opera sobre outras funções, tratando-as como argumentos ou como resultado.
 
 
 
