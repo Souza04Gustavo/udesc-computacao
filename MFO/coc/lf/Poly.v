@@ -980,7 +980,10 @@ Definition fold_map {X Y: Type} (f: X -> Y) (l: list X) : list Y
 (* FILL IN HERE *)
 
 (* Do not modify the following line: *)
+(*
 Definition manual_grade_for_fold_map : option (nat*string) := None.
+*)
+
 (** [] *)
 
 (** **** Exercise: 2 stars, advanced (currying)
@@ -1064,7 +1067,11 @@ Proof.
 (* FILL IN HERE *)
 
 (* Do not modify the following line: *)
+
+(*
 Definition manual_grade_for_informal_proof : option (nat*string) := None.
+*)
+
 (** [] *)
 
 (* ================================================================= *)
