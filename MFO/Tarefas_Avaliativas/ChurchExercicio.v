@@ -43,18 +43,25 @@ Proof. simpl. reflexivity. Qed.
 
 (* Adição: *)
 
-Definition plus (n m : cnat) : cnat. Admitted.
+Definition plus (n m : cnat) : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => n X f (m X f x).
 
 Example plus_1 : plus zero one = one.
-Proof. Admitted.
+Proof. 
+  reflexivity.
+Qed.
 
 Example plus_2 : plus two three = plus three two.
-Proof. Admitted.
-
+Proof. 
+  reflexivity.
+Qed.
 
 Example plus_3 :
   plus (plus two two) three = plus one (plus three three).
-Proof. Admitted.
+Proof. 
+  reflexivity.
+Qed.
+ 
 
 Check plus.
 
@@ -62,20 +69,24 @@ Check plus.
 
 
 (** Multiplicação: *)
-Definition mult (n m : cnat) : cnat. Admitted.
-
+Definition mult (n m : cnat) : cnat :=
+  fun (X : Type) (f :  X -> X) (x : X) => n X (m X f) x.
   
 
 Example mult_1 : mult one one = one.
-Proof. Admitted.
-
+Proof. 
+  simpl. reflexivity.
+Qed.
 
 Example mult_2 : mult zero (plus three three) = zero.
-Proof. Admitted.
-
+Proof. 
+  simpl. reflexivity.
+Qed.
 
 Example mult_3 : mult two three = plus three three.
-Proof. Admitted.
+Proof.
+  simpl. reflexivity.
+Qed.
 
 
 (** [] *)
@@ -87,7 +98,8 @@ Proof. Admitted.
     será necessário aplicar a expressão lambda n como o parâmetro que representa o sucessor na
     expressão lambda m, por isso o tipo polimórfico passado para m deve ser (X->X). *)
 
-Definition exp (n m : cnat) : cnat. Admitted.
+Definition exp (n m : cnat) : cnat :=
+  fun (X : Type) (f: X -> X) (x : X) =>  (m (X -> X) (n X)) f x.
 
 
 Check exp.
@@ -99,15 +111,19 @@ Compute (exp three two).
 Compute (exp two (plus two two)).
 
 Example exp_1 : exp two two = plus two two.
-Proof. Admitted.
+Proof. 
+  reflexivity.
+Qed.
 
 Example exp_2 : exp three zero = one.
-Proof. Admitted.
-
+Proof.
+  reflexivity.
+Qed.
 
 Example exp_3 : exp three two = plus (mult two (mult two two)) one.
-Proof. Admitted.
-
+Proof.
+  reflexivity.
+Qed.
 
 (** [] *)
 
