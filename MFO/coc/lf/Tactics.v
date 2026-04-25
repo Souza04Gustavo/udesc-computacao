@@ -275,7 +275,6 @@ Theorem injection_ex1 : forall (n m o : nat),
   n = m.
 Proof.
   intros n m o H.
-  (* WORKED IN CLASS *)
   injection H as H1 H2.
   rewrite H1. rewrite H2. reflexivity.
 Qed.
@@ -286,8 +285,12 @@ Example injection_ex3 : forall (X : Type) (x y z : X) (l j : list X),
   j = z :: l ->
   x = y.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+   intros X x y z l j H1 H2.
+   injection H1 as H3 H4. rewrite <- H4 in H2.
+   injection H2 as H5. rewrite H3. rewrite H5.
+   reflexivity.
+Qed.
+
 
 (** So much for injectivity of constructors.  What about disjointness? *)
 
