@@ -344,18 +344,27 @@ Compute (invert bw_white).
     over [simpl] and go directly to [reflexivity]. We'll explain
     what's happening later in the chapter. *)
 
-Definition nandb (b1:bool) (b2:bool) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition nandb (b1:bool) (b2:bool) : bool :=
+  match b1 with
+  | true => match b2 with 
+            | true => false
+            | false => true
+            end
+  | false => true
+  end.
 
 Example test_nandb1:               (nandb true false) = true.
-(* FILL IN HERE *) Admitted.
+  simpl. reflexivity. Qed.
+
 Example test_nandb2:               (nandb false false) = true.
-(* FILL IN HERE *) Admitted.
+  simpl. reflexivity. Qed.
+
 Example test_nandb3:               (nandb false true) = true.
-(* FILL IN HERE *) Admitted.
+  simpl. reflexivity. Qed.
+
 Example test_nandb4:               (nandb true true) = false.
-(* FILL IN HERE *) Admitted.
-(** [] *)
+  simpl. reflexivity. Qed.
+
 
 (** **** Exercise: 1 star, standard (andb3)
 
@@ -363,18 +372,27 @@ Example test_nandb4:               (nandb true true) = false.
     return [true] when all of its inputs are [true], and [false]
     otherwise. *)
 
-Definition andb3 (b1:bool) (b2:bool) (b3:bool) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition andb3 (b1:bool) (b2:bool) (b3:bool) : bool :=
+  match b1 with
+  | true => match b2, b3 with
+            | true, true => true
+            | _, _ => false
+            end
+  | false => false
+  end.
 
 Example test_andb31:                 (andb3 true true true) = true.
-(* FILL IN HERE *) Admitted.
+  simpl. reflexivity. Qed.
+
 Example test_andb32:                 (andb3 false true true) = false.
-(* FILL IN HERE *) Admitted.
+  simpl. reflexivity. Qed.
+
 Example test_andb33:                 (andb3 true false true) = false.
-(* FILL IN HERE *) Admitted.
+  simpl. reflexivity. Qed.
+
 Example test_andb34:                 (andb3 true true false) = false.
-(* FILL IN HERE *) Admitted.
-(** [] *)
+  simpl. reflexivity. Qed.
+
 
 (* ================================================================= *)
 (** ** Types *)
@@ -817,14 +835,22 @@ Fixpoint exp (base power : nat) : nat :=
     factorial was not found in the current environment," it means
     you've forgotten the [:=]. *)
 
-Fixpoint factorial (n:nat) : nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint factorial (n:nat) : nat :=
+  match n with
+  | 0 => 1
+  | S n' => mult n ( factorial n')
+  end.
+
+Compute factorial 8.
+
 
 Example test_factorial1:          (factorial 3) = 6.
-(* FILL IN HERE *) Admitted.
+  simpl. reflexivity. Qed.
+
 Example test_factorial2:          (factorial 5) = (mult 10 12).
-(* FILL IN HERE *) Admitted.
-(** [] *)
+  simpl. reflexivity. Qed.
+
+
 
 (** Again, we can make numerical expressions easier to read and write
     by introducing notations for addition, subtraction, and
@@ -1144,7 +1170,9 @@ Proof.
 Theorem mult_n_1 : forall p : nat,
   p * 1 = p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros p. rewrite <- mult_n_Sm. rewrite <- mult_n_O. simpl. reflexivity.
+Qed.
+
 
 (** [] *)
 
@@ -1350,8 +1378,13 @@ Qed.
 Theorem andb_true_elim2 : forall b c : bool,
   andb b c = true -> c = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+   intros b c H. destruct b in H.
+   - rewrite <- H. simpl. reflexivity.
+   - destruct c.
+     + reflexivity.
+     + rewrite <- H. simpl. reflexivity.
+Qed.
+
 
 (** Before closing the chapter, we should mention one final
     convenience.  As you may have noticed, many proofs perform case
@@ -1387,12 +1420,18 @@ Proof.
   - reflexivity.
 Qed.
 
+Search "=?".
+Search "+".
+
 (** **** Exercise: 1 star, standard (zero_nbeq_plus_1) *)
 Theorem zero_nbeq_plus_1 : forall n : nat,
   0 =? (n + 1) = false.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n. destruct n as [| n'].
+  - simpl. reflexivity.
+  - reflexivity. 
+Qed.  
+
 
 (* ================================================================= *)
 (** ** More on Notation (Optional) *)
@@ -1496,22 +1535,14 @@ Theorem identity_fn_applied_twice :
   (forall (x : bool), f x = x) ->
   forall (b : bool), f (f b) = b.
 Proof.
-  (* FILL IN HERE *) Admitted.
-
-(** [] *)
+  intros f H b. rewrite H. rewrite H. reflexivity.
+Qed.
 
 (** **** Exercise: 1 star, standard (negation_fn_applied_twice)
 
     Now state and prove a theorem [negation_fn_applied_twice] similar
     to the previous one but where the hypothesis says that the
     function [f] has the property that [f x = negb x]. *)
-
-(* FILL IN HERE *)
-
-(* Do not modify the following line: *)
-(** (The last definition is used by the autograder.)
-
-    [] *)
 
 (** **** Exercise: 3 stars, standard, optional (andb_eq_orb)
 
@@ -1525,9 +1556,11 @@ Theorem andb_eq_orb :
   (andb b c = orb b c) ->
   b = c.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros b c H. destruct b in *. simpl in H.
+  - rewrite H. reflexivity.
+  - simpl in H. rewrite H. reflexivity.
+Qed.
 
-(** [] *)
 
 (* ================================================================= *)
 (** ** Course Late Policies, Formalized *)

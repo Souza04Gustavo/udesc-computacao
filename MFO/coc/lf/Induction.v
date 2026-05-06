@@ -244,22 +244,17 @@ Theorem mul_0_r : forall n:nat,
   n * 0 = 0.
 Proof.
   intros n. induction n as [| n' IH].
-  - (* Caso base: n = 0 *)
-    simpl. reflexivity.
-  - (* Passo indutivo: n = S n' *)
-    simpl. rewrite -> IH. reflexivity.
+  - simpl. reflexivity.
+  - simpl. rewrite -> IH. reflexivity.
 Qed.
-
 
 
 Theorem plus_n_Sm : forall n m : nat,
   S (n + m) = n + (S m).
 Proof.
-  intros n m. induction n as [| n' HI].
-  - (* Caso Base: n = 0 *)
-  simpl. reflexivity.
-  - (* Passo Indutivo: ???*)
-  simpl. rewrite HI. reflexivity.
+  intros n m. induction n as [| n' H].
+  - simpl. reflexivity.
+  - simpl. rewrite H. reflexivity.
 Qed.
 
 
@@ -297,7 +292,7 @@ Fixpoint double (n:nat) :=
 Lemma double_plus : forall n, double n = n + n .
 Proof.
   intros n. induction n as [| b HI].
-  - (* Base: n = 0 *) simpl. reflexivity.
+  - simpl. reflexivity.
   - simpl. rewrite HI. rewrite plus_n_Sm. reflexivity.
 Qed.
 
@@ -314,7 +309,6 @@ Proof.
   intros n. induction n as [| b HI].
   - simpl. reflexivity.
   - simpl. rewrite HI. reflexivity.
-
 Qed.
 
 
@@ -544,20 +538,38 @@ Proof.
     Use [replace] to help prove [add_shuffle3].  You don't need to
     use induction yet. *)
 
+Search "add".
+
 Theorem add_shuffle3 : forall n m p : nat,
   n + (m + p) = m + (n + p).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p. rewrite -> add_assoc. rewrite add_assoc'. replace (n + m) with (m + n).
+  reflexivity. rewrite add_comm. reflexivity.
+Qed.
 
 (** Now prove commutativity of multiplication.  You will probably want
     to look for (or define and prove) a "helper" theorem to be used in
     the proof of this one. Hint: what is [n * (1 + k)]? *)
 
+Search "*".
+Search "+".
+
+Lemma mul_S_r : forall n m : nat,
+  n * S m = n + (n * m).
+Proof.
+  intros n m. induction n as [| n' H].
+  - simpl. reflexivity.
+  - simpl. rewrite plus_n_Sm. rewrite add_shuffle3. rewrite H. rewrite <- plus_n_Sm. reflexivity.
+Qed.
+
 Theorem mul_comm : forall m n : nat,
   m * n = n * m.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros m n. induction m as [| m' H].
+  - simpl. rewrite mul_0_r. reflexivity.
+  - simpl. rewrite H. rewrite mul_S_r. reflexivity.
+Qed.
+
 
 (** **** Exercise: 3 stars, standard, optional (more_exercises)
 
@@ -569,10 +581,16 @@ Proof.
     to turn in your piece of paper; this is just to encourage you to
     reflect before you hack!) *)
 
+Search "<=?".
+
 Theorem leb_refl : forall n:nat,
   (n <=? n) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [|n' H].
+  - simpl. reflexivity.
+  - simpl. rewrite H. reflexivity.
+Qed.
+
 
 Theorem zero_neqb_S : forall n:nat,
   0 =? (S n) = false.
