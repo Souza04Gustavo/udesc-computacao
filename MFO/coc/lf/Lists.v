@@ -225,6 +225,8 @@ Fixpoint repeat (n count : nat) : natlist :=
   | S count' => n :: (repeat n count')
   end.
 
+Compute (repeat 1 4 ).
+
 (* ----------------------------------------------------------------- *)
 (** *** Length *)
 
@@ -344,16 +346,21 @@ Fixpoint countoddmembers (l:natlist) : nat :=
 
 Example test_countoddmembers1:
   countoddmembers [1;0;3;1;4;5] = 4.
-  (* FILL IN HERE *) Admitted.
+  Proof.
+    simpl. reflexivity.
+  Qed.
 
 Example test_countoddmembers2:
   countoddmembers [0;2;4] = 0.
-  (* FILL IN HERE *) Admitted.
+  Proof.
+    simpl. reflexivity.
+  Qed.
 
 Example test_countoddmembers3:
   countoddmembers nil = 0.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  Proof.
+    simpl. reflexivity.
+  Qed.
 
 (** **** Exercise: 3 stars, advanced (alternate)
 
@@ -928,19 +935,31 @@ Search (?x + ?y = ?y + ?x).
 Theorem app_nil_r : forall l : natlist,
   l ++ [] = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros l. induction l as [| n l' H].
+  - simpl. reflexivity.
+  - simpl. rewrite H. reflexivity.
+Qed.
+
 
 Theorem rev_app_distr: forall l1 l2 : natlist,
   rev (l1 ++ l2) = rev l2 ++ rev l1.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros l1 l2. induction l1 as [| h t H].
+  - simpl. rewrite app_nil_r. reflexivity.
+  - simpl. rewrite H. rewrite app_assoc. reflexivity.
+Qed.
+
 
 (** An _involution_ is a function that is its own inverse. That is,
     applying the function twice yield the original input. *)
 Theorem rev_involutive : forall l : natlist,
   rev (rev l) = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros l. induction l as [| h t H].
+  - simpl. reflexivity.
+  -  simpl. rewrite rev_app_distr. rewrite H. simpl.
+reflexivity.  
+Qed.
 
 (** There is a short solution to the next one.  If you find yourself
     getting tangled up, step back and try to look for a simpler
@@ -949,15 +968,23 @@ Proof.
 Theorem app_assoc4 : forall l1 l2 l3 l4 : natlist,
   l1 ++ (l2 ++ (l3 ++ l4)) = ((l1 ++ l2) ++ l3) ++ l4.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros l1 l2 l3 l4. rewrite app_assoc. rewrite app_assoc. reflexivity.
+Qed.
 
 (** An exercise about your implementation of [nonzeros]: *)
+
+Search "++".
+
 
 Lemma nonzeros_app : forall l1 l2 : natlist,
   nonzeros (l1 ++ l2) = (nonzeros l1) ++ (nonzeros l2).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros l1 l2. induction l1 as [| h t IH].
+  - simpl.  reflexivity.
+  - destruct h.
+    + simpl. rewrite IH. reflexivity.
+    + simpl. rewrite IH. reflexivity.
+Qed.
 
 (** **** Exercise: 2 stars, standard (eqblist)
 

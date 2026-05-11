@@ -403,28 +403,52 @@ Qed.
 Theorem app_assoc : forall A (l m n : list A),
   l ++ m ++ n = (l ++ m) ++ n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+   intros A l m n. induction l as [| h t IH].
+   - simpl. reflexivity.
+   - simpl. rewrite IH. reflexivity.
+Qed.
 
 Lemma app_length : forall (X : Type) (l1 l2 : list X),
   length (l1 ++ l2) = length l1 + length l2.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros X l1 l2. induction l1 as [| h t IH].
+  - simpl. reflexivity.
+  - simpl. rewrite IH. reflexivity.
+Qed.
+
 
 (** **** Exercise: 2 stars, standard (more_poly_exercises)
 
     Here are some slightly more interesting ones... *)
 
+Search "rev".
+
+Theorem rev_app_nill_aux: forall X (l1: list X),
+  rev (l1) = rev l1 ++ [].
+Proof.
+  intros X l1. induction l1 as [| h t IH].
+  - simpl. reflexivity.
+  - simpl. rewrite <- app_assoc. simpl. reflexivity.
+Qed.
+
+
 Theorem rev_app_distr: forall X (l1 l2 : list X),
   rev (l1 ++ l2) = rev l2 ++ rev l1.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X l1 l2. induction l1 as [| h t IH].
+  - simpl. rewrite <- rev_app_nill_aux. reflexivity.
+  - simpl. rewrite -> IH. rewrite -> app_assoc. reflexivity.
+Qed.
+
 
 Theorem rev_involutive : forall X : Type, forall l : list X,
   rev (rev l) = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros X l. induction l as [| h t IH].
+  - simpl. reflexivity.
+  - simpl. rewrite rev_app_distr. rewrite IH. simpl. reflexivity.
+Qed. 
+
 
 (* ================================================================= *)
 (** ** Polymorphic Pairs *)
@@ -508,14 +532,19 @@ Fixpoint combine {X Y : Type} (lx : list X) (ly : list Y)
     Fill in the definition of [split] below.  Make sure it passes the
     given unit test. *)
 
-Fixpoint split {X Y : Type} (l : list (X*Y)) : (list X) * (list Y)
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint split {X Y : Type} (l : list (X*Y)) : (list X) * (list Y) :=
+  match l with
+  | [] => ([], []) 
+  | (x, y) :: t => match split t with
+                   | (lx, ly) => (x :: lx, y :: ly)
+                   end
+  end.
 
 Example test_split:
   split [(1,false);(2,false)] = ([1;2],[false;false]).
 Proof.
-(* FILL IN HERE *) Admitted.
-(** [] *)
+  simpl. reflexivity.
+Qed.
 
 (* ================================================================= *)
 (** ** Polymorphic Options *)
@@ -690,17 +719,20 @@ Proof. reflexivity. Qed.
     and returns a list of just those that are even and greater than
     7. *)
 
-Definition filter_even_gt7 (l : list nat) : list nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition filter_even_gt7 (l : list nat) : list nat :=
+   filter (fun h => (even h) && (7 <? h)) l.
 
 Example test_filter_even_gt7_1 :
   filter_even_gt7 [1;2;6;9;10;3;12;8] = [10;12;8].
- (* FILL IN HERE *) Admitted.
+Proof.
+  simpl. reflexivity.
+Qed.
 
 Example test_filter_even_gt7_2 :
   filter_even_gt7 [5;2;6;19;129] = [].
- (* FILL IN HERE *) Admitted.
-(** [] *)
+Proof.
+  simpl. reflexivity.
+Qed.
 
 (** **** Exercise: 3 stars, standard (partition)
 
@@ -768,11 +800,24 @@ Proof. reflexivity. Qed.
     Show that [map] and [rev] commute.  (Hint: You may need to define an
     auxiliary lemma.) *)
 
+Search "++".
+
+Theorem map_assoc : forall (X Y: Type) (f : X -> Y) (l1 l2 : list X),
+  map f (l1 ++ l2) = map f l1 ++ map f l2.
+Proof.
+  intros X Y f l1 l2. induction l1 as [| h t IH].
+  - simpl. reflexivity.
+  - simpl. rewrite IH. reflexivity.
+Qed.
+
 Theorem map_rev : forall (X Y : Type) (f : X -> Y) (l : list X),
   map f (rev l) = rev (map f l).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+   intros X Y f l. induction l as [| h t IH].
+  - simpl. reflexivity.
+  - simpl. rewrite -> map_assoc. rewrite IH. reflexivity.
+Qed.
+
 
 (** **** Exercise: 2 stars, standard, especially useful (flat_map)
 
@@ -962,8 +1007,10 @@ Proof. reflexivity. Qed.
 Theorem fold_length_correct : forall X (l : list X),
   fold_length l = length l.
 Proof.
-(* FILL IN HERE *) Admitted.
-(** [] *)
+  intros X l. unfold fold_length. induction l as [| h t IH].
+  - simpl. reflexivity.
+  - simpl. rewrite -> IH. reflexivity.
+Qed.
 
 (** **** Exercise: 3 stars, standard (fold_map)
 

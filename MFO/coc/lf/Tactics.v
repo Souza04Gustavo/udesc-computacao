@@ -77,8 +77,9 @@ Theorem silly_ex : forall p,
   even p = true ->
   odd (S p) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros p eq1 eq2 eq3. apply eq2. apply eq1. apply eq3.
+Qed.
+
 
 (** To use the [apply] tactic, the (conclusion of the) fact
     being applied must match the goal exactly (perhaps after
@@ -195,8 +196,8 @@ Example trans_eq_exercise : forall (n m o p : nat),
      (n + p) = m ->
      (n + p) = (minustwo o).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n m o p eq1 eq2. transitivity m. apply eq2. apply eq1.
+Qed.
 
 (* ################################################################# *)
 (** * The [injection] and [discriminate] Tactics *)
@@ -338,8 +339,8 @@ Example discriminate_ex3 :
     x :: y :: l = [] ->
     x = z.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros X x y z l j eq1. discriminate eq1.
+Qed.
 
 (** For a more useful example, we can use [discriminate] to make a
     connection between the two different notions of equality ([=] and
@@ -472,14 +473,18 @@ Proof.
 
 (** **** Exercise: 3 stars, standard (nth_error_always_none) *)
 
+Search "nth_error".
+
 (** Use [specialize] to prove the the following lemma, following the
     model of [specialize_example] above. Do not use [induction]. *)
 Lemma nth_error_always_none: forall (l : list nat),
   (forall i, nth_error l i = None) ->
   l = [].
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+   intros l H. specialize H with (i := 0). destruct l as [| h t].
+   - reflexivity.
+   - discriminate.
+Qed.
 
 (** Using [specialize] before [apply] gives us yet another way to
     control where [apply] does its work. *)
@@ -651,14 +656,39 @@ Proof.
     variables [n] and [m] by induction on [n], it is sometimes crucial
     to leave [m] "generic." *)
 
+
+Search "=?".
+
+(*
+eqb_refl: forall n : nat, (n =? n) = true
+zero_neqb_S: forall n : nat, (0 =? S n) = false
+S_neqb_0: forall n : nat, (S n =? 0) = false
+eqb_0_l: forall n : nat, (0 =? n) = true -> n = 0
+plus_1_neq_0: forall n : nat, (n + 1 =? 0) = false
+plus_1_neq_0': forall n : nat, (n + 1 =? 0) = false
+zero_nbeq_plus_1: forall n : nat, (0 =? n + 1) = false
+S_inj: forall (n m : nat) (b : bool), (S n =? S m) = b -> (n =? m) = b
+test_filter2':
+  filter (fun l : list nat => length l =? 1)
+    [[1; 2]; [3]; [4]; [5; 6; 7]; [ ]; [8]] = [[3]; [4]; [8]]
+
+*)
+
 (** The following exercise, which further strengthens the link between
     [=?] and [=], follows the same pattern. *)
 (** **** Exercise: 2 stars, standard (eqb_true) *)
 Theorem eqb_true : forall n m,
   n =? m = true -> n = m.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n m H. generalize dependent m. induction n as [|m' IH].
+  - intros m H. destruct m. 
+    + reflexivity.
+    + simpl in H. discriminate H.
+  - intros m H. destruct m.
+    + discriminate.
+    + simpl in H. apply IH in H. rewrite H. reflexivity.
+Qed.
+
 
 (** **** Exercise: 2 stars, advanced, optional (eqb_true_informal)
 
@@ -666,22 +696,30 @@ Proof.
     hypothesis explicitly and being as explicit as possible about
     quantifiers, everywhere. *)
 
-(* FILL IN HERE *)
-
-(* Do not modify the following line: *)
-Definition manual_grade_for_informal_proof : option (nat*string) := None.
-(** [] *)
-
 (** **** Exercise: 3 stars, standard, especially useful (plus_n_n_injective)
 
     In addition to being careful about how you use [intros], practice
     using "in" variants in this proof.  (Hint: use [plus_n_Sm].) *)
+
+Search "+".
+Search "plus_n_Sm".
+
+(* plus_n_Sm: forall n m : nat, S (n + m) = n + S m   *)
+
 Theorem plus_n_n_injective : forall n m,
   n + n = m + m ->
   n = m.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n m IH. generalize dependent m. induction n as [|n' IH'].
+  - intros m EQ. simpl in EQ. destruct m.
+    + simpl in EQ. reflexivity.
+    + simpl in EQ. discriminate.
+  - intros m EQ2. destruct m.
+    + discriminate.
+    + simpl in EQ2. injection EQ2 as EQ2. 
+      rewrite <- plus_n_Sm in EQ2. rewrite <- plus_n_Sm in EQ2.
+      injection EQ2 as EQ2. apply IH' in EQ2. rewrite EQ2. reflexivity.
+Qed.
 
 (** The strategy of doing fewer [intros] before an [induction] to
     obtain a more general IH doesn't always work; sometimes some
@@ -830,8 +868,12 @@ Theorem nth_error_after_last: forall (n : nat) (X : Type) (l : list X),
   length l = n ->
   nth_error l n = None.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n X l. generalize dependent n. induction l as [| h t IH].
+  - simpl. intros n H. reflexivity.
+  - intros n H. simpl in H. destruct n.
+    + discriminate.
+    + injection H as H. simpl. apply IH in H. rewrite H. reflexivity.
+Qed.
 
 (* ################################################################# *)
 (** * Unfolding Definitions *)
@@ -1018,8 +1060,9 @@ Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
   split l = (l1, l2) ->
   combine l1 l2 = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  Abort.
+
+
 
 (** The [eqn:] part of the [destruct] tactic is optional; although
     we've chosen to include it most of the time, for the sake of
@@ -1223,9 +1266,9 @@ Theorem split_combine : split_combine_statement.
 Proof.
 (* FILL IN HERE *) Admitted.
 
-(* Do not modify the following line: *)
+(* Do not modify the following line:
 Definition manual_grade_for_split_combine : option (nat*string) := None.
-(** [] *)
+*)
 
 (** **** Exercise: 3 stars, advanced (filter_exercise) *)
 Theorem filter_exercise : forall (X : Type) (test : X -> bool)

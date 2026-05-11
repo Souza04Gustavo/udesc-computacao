@@ -144,8 +144,15 @@ Qed.
 Example plus_is_O :
   forall n m : nat, n + m = 0 -> n = 0 /\ m = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n m. split.
+  - destruct n.
+    + reflexivity.
+    + discriminate.
+  - destruct n.
+    + simpl in H. rewrite H. reflexivity.
+    + simpl in H. discriminate H.
+Qed.
+
 
 (** So much for proving conjunctive statements.  To go in the other
     direction -- i.e., to _use_ a conjunctive hypothesis to help prove
@@ -222,8 +229,9 @@ Proof.
 Lemma proj2 : forall P Q : Prop,
   P /\ Q -> Q.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros P Q IH. destruct IH as [_ HQ]. apply HQ.
+Qed.
+
 
 (** Finally, we sometimes need to rearrange the order of conjunctions
     and/or the grouping of multi-way conjunctions. We can see this
@@ -248,8 +256,11 @@ Theorem and_assoc : forall P Q R : Prop,
   P /\ (Q /\ R) -> (P /\ Q) /\ R.
 Proof.
   intros P Q R [HP [HQ HR]].
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  split.
+  - split. apply HP. apply HQ.
+  - apply HR.
+Qed.
+
 
 (** The infix notation [/\] is actually just syntactic sugar for
     [and A B].  That is, [and] is a Rocq operator that takes two
@@ -321,15 +332,23 @@ Qed.
 Lemma mult_is_O :
   forall n m, n * m = 0 -> n = 0 \/ m = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+   destruct n as [|n'].
+   - intros m EQ1. left. reflexivity.
+   - intros m EQ2. simpl in EQ2. right. destruct m.
+    + reflexivity.
+    + simpl in EQ2. discriminate EQ2. 
+Qed.
 
 (** **** Exercise: 1 star, standard (or_commut) *)
 Theorem or_commut : forall P Q : Prop,
   P \/ Q  -> Q \/ P.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros P Q H. destruct H as [HP | HQ].
+  - right. apply HP.
+  - left. apply HQ. 
+Qed.
+
+
 
 (* ================================================================= *)
 (** ** Falsehood and Negation *)
@@ -386,8 +405,8 @@ Proof.
 Theorem not_implies_our_not : forall (P:Prop),
   ~ P -> (forall (Q:Prop), P -> Q).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros P H Q. unfold not in H. intros HP. apply H in HP. destruct HP.
+Qed.
 
 (** Inequality is a very common form of negated statement, so there is a
     special notation for it: *)
@@ -444,36 +463,34 @@ Proof.
 
    _Theorem_: [P] implies [~~P], for any proposition [P]. *)
 
-(* FILL IN HERE *)
-
 (* Do not modify the following line: *)
+(*
 Definition manual_grade_for_double_neg_informal : option (nat*string) := None.
-(** [] *)
+*)
 
 (** **** Exercise: 1 star, standard, especially useful (contrapositive) *)
 Theorem contrapositive : forall (P Q : Prop),
   (P -> Q) -> (~Q -> ~P).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+   intros P Q EQ1 EQ2. unfold not. unfold not in EQ2. intros HP. apply EQ2.
+   apply EQ1. apply HP. 
+Qed.
 
 (** **** Exercise: 1 star, standard (not_both_true_and_false) *)
 Theorem not_both_true_and_false : forall P : Prop,
   ~ (P /\ ~P).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros P IH. destruct IH as [H1 H2]. unfold not in H2. apply H2. apply H1.
+Qed.
 
 (** **** Exercise: 1 star, advanced (not_PNP_informal)
 
     Write an informal proof (in English) of the proposition [forall P
     : Prop, ~(P /\ ~P)]. *)
 
-(* FILL IN HERE *)
-
-(* Do not modify the following line: *)
+(*
 Definition manual_grade_for_not_PNP_informal : option (nat*string) := None.
-(** [] *)
+*)
 
 (** **** Exercise: 2 stars, standard (de_morgan_not_or)
 
@@ -486,8 +503,11 @@ Definition manual_grade_for_not_PNP_informal : option (nat*string) := None.
 Theorem de_morgan_not_or : forall (P Q : Prop),
     ~ (P \/ Q) -> ~P /\ ~Q.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros P Q H1. unfold not in H1. unfold not. split.
+  - intros H2. apply H1. left. apply H2.
+  - intros H3. apply H1. right. apply H3.
+Qed.
+
 
 (** **** Exercise: 1 star, standard, optional (not_S_inverse_pred)
 
@@ -495,8 +515,8 @@ Proof.
     [S] and [pred] are inverses of each other: *)
 Lemma not_S_pred_n : ~(forall n : nat, S (pred n) = n).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+   unfold not. intros H1. specialize H1 with (n := 0). simpl in H1. discriminate H1.
+Qed.
 
 (** Since inequality involves a negation, it also requires a little
     practice to be able to work with it fluently.  Here is one useful
@@ -677,7 +697,8 @@ Proof.
     [reflexivity] can be used with [iff] statements, not just equalities.
     To enable this behavior, we have to import the Rocq library that
     supports it: *)
-From Stdlib Require Import Setoids.Setoid.
+
+From Coq Require Import Setoids.Setoid.
 
 (** A "setoid" is a set equipped with an equivalence relation -- that
     is, a relation that is reflexive, symmetric, and transitive.  When two
@@ -850,6 +871,7 @@ Qed.
 
 (** We can also reason about more generic statements involving [In]. *)
 
+(* MEIO CHATA ESSA AQUI:*)
 Theorem In_map :
   forall (A B : Type) (f : A -> B) (l : list A) (x : A),
          In x l ->
@@ -908,8 +930,11 @@ Proof.
     lemma below.  (Of course, your definition should _not_ just
     restate the left-hand side of [All_In].) *)
 
-Fixpoint All {T : Type} (P : T -> Prop) (l : list T) : Prop
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint All {T : Type} (P : T -> Prop) (l : list T) : Prop :=
+    match l with
+    | [] => True
+    | h :: t => P h /\ All P t
+    end.
 
 Theorem All_In :
   forall T (P : T -> Prop) (l : list T),
