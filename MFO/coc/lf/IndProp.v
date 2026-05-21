@@ -569,8 +569,11 @@ Qed.
 Theorem ev_double : forall n,
   ev (double n).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n. induction n as [|n' IH].
+  - simpl. apply ev_0.
+  - simpl. apply ev_SS. apply IH.
+Qed.
+
 
 (* ================================================================= *)
 (** ** Constructing Evidence for Permutations *)
@@ -683,8 +686,11 @@ Lemma le_inversion : forall (n m : nat),
   le n m ->
   (n = m) \/ (exists m', m = S m' /\ le n m').
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n m E. destruct E as [| n' E'].
+  - left. reflexivity.
+  - 
+Qed.
+
 
 (** We can use the inversion lemma that we proved above to help
     structure proofs: *)
