@@ -917,11 +917,26 @@ Qed.
 (** The following exercises provide simpler examples of this
     technique, to help you familiarize yourself with it. *)
 
+
+Search "ev".
+
+(*
+  ev_Even_iff: forall n : nat, ev n <-> Even n
+  ev_SS: forall n : nat, ev n -> ev (S (S n))
+  evSS_ev': forall n : nat, ev (S (S n)) -> ev n
+  evSS_ev: forall n : nat, ev (S (S n)) -> ev n
+*)
+
+(*EXERCICIOS FEITO EM SALA PELO SOR (MEIO DESAFIO): *)
+
 (** **** Exercise: 2 stars, standard (ev_sum) *)
 Theorem ev_sum : forall n m, ev n -> ev m -> ev (n + m).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n m H1. induction H1 as [| n' E' H2].
+  - simpl. intros H3. apply H3.
+  - simpl. intros H4. apply ev_SS. apply H2. apply H4.
+Qed.
+
 
 (** **** Exercise: 3 stars, advanced, especially useful (ev_ev__ev) *)
 Theorem ev_ev__ev : forall n m,
@@ -929,8 +944,13 @@ Theorem ev_ev__ev : forall n m,
   (* Hint: There are two pieces of evidence you could attempt to induct upon
       here. If one doesn't work, try the other. *)
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n m H1 H2. induction H2 as [| n' E' H2'].
+  - simpl in H1. apply H1.
+  - apply H2'. simpl in H1. apply evSS_ev in H1. apply H1.
+Qed.
+
+
+(* FALTOU FAZER ESSA AQUI: *)
 
 (** **** Exercise: 3 stars, standard, optional (ev_plus_plus)
 
