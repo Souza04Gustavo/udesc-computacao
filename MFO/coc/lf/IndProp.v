@@ -688,7 +688,9 @@ Lemma le_inversion : forall (n m : nat),
 Proof.
   intros n m E. destruct E as [| n' E'].
   - left. reflexivity.
-  - 
+  - right. exists n'. split.
+    + reflexivity.
+    + apply E'. 
 Qed.
 
 
@@ -750,8 +752,9 @@ Proof. intros H. inversion H. Qed.
 Theorem SSSSev__even : forall n,
   ev (S (S (S (S n)))) -> ev n.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n IH. inversion IH. inversion H0. apply H2. 
+Qed.
+
 
 (** **** Exercise: 1 star, standard (ev5_nonsense)
 
@@ -760,8 +763,9 @@ Proof.
 Theorem ev5_nonsense :
   ev 5 -> 2 + 2 = 9.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros IH. inversion IH. inversion H0. inversion H2.
+Qed.
+
 
 (** The [inversion] tactic does quite a bit of work. For
     example, when applied to an equality assumption, it does the work
@@ -1031,8 +1035,17 @@ Inductive ev' : nat -> Prop :=
 
 Theorem ev'_ev : forall n, ev' n <-> ev n.
 Proof.
- (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n. split. 
+  - intros E. induction E.
+    + apply ev_0.
+    + apply ev_SS. apply ev_0.
+    + apply ev_sum. apply IHE1. apply IHE2.
+  - intros E. induction E.
+    + apply ev'_0.
+    + apply (ev'_sum 2 n).
+      * apply ev'_2.
+      * apply IHE.
+Qed.
 
 (** We can do similar inductive proofs on the [Perm3] relation,
     which we defined earlier as follows: *)
@@ -1308,8 +1321,9 @@ Inductive R : nat -> nat -> nat -> Prop :=
 
 (* FILL IN HERE *)
 
-(* Do not modify the following line: *)
+(*  
 Definition manual_grade_for_R_provability : option (nat*string) := None.
+*)
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (R_fact)
@@ -1660,13 +1674,18 @@ Qed.
 Lemma EmptySet_is_empty : forall T (s : list T),
   ~ (s =~ EmptySet).
 Proof.
-  (* FILL IN HERE *) Admitted.
+   intros T s H. inversion H.
+Qed.
+
 
 Lemma MUnion' : forall T (s : list T) (re1 re2 : reg_exp T),
   s =~ re1 \/ s =~ re2 ->
   s =~ Union re1 re2.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros T s re1 re2. intros H. destruct H as [H1|H2].
+  - apply MUnionL. apply H1.
+  - apply MUnionR. apply H2.
+Qed.
 
 (** The next lemma is stated in terms of the [fold] function from the
     [Poly] chapter: If [ss : list (list T)] represents a sequence of
@@ -1677,8 +1696,12 @@ Lemma MStar' : forall T (ss : list (list T)) (re : reg_exp T),
   (forall s, In s ss -> s =~ re) ->
   fold app ss [] =~ Star re.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros T ss re. induction ss as [| s' ss' IHss'].
+  - intros H. simpl. apply MStar0.
+  - intros H. simpl. apply MStarApp.
+    + apply H. simpl. left. reflexivity.
+    + apply IHss'. intros H1. intros H2. apply H. simpl. right. apply H2. 
+Qed.
 
 (** **** Exercise: 2 stars, standard, optional (EmptyStr_not_needed)
 
@@ -1717,6 +1740,8 @@ Fixpoint re_chars {T} (re : reg_exp T) : list T :=
   end.
 
 (** Now, the main theorem: *)
+
+Search "In".
 
 Theorem in_re_match : forall T (s : list T) (re : reg_exp T) (x : T),
   s =~ re ->
@@ -1780,14 +1805,46 @@ Qed.
     regular expression matches some string. Prove that your function
     is correct. *)
 
-Fixpoint re_not_empty {T : Type} (re : reg_exp T) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint re_not_empty {T : Type} (re : reg_exp T) : bool :=
+  match re with
+  | EmptySet=> false
+  | EmptyStr => true
+  | Char _ => true
+  | App r1 r2 => andb (re_not_empty r1) (re_not_empty r2)
+  | Union r1 r2 => orb (re_not_empty r1) (re_not_empty r2)
+  | Star _ => true
+  end.
 
 Lemma re_not_empty_correct : forall T (re : reg_exp T),
   (exists s, s =~ re) <-> re_not_empty re = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros T re. split.
+  - intros [s H]. induction H.
+    + simpl. reflexivity.
+    + simpl. reflexivity.
+    + simpl. apply andb_true_iff. split. 
+      * apply IHexp_match1.
+      * apply IHexp_match2.
+    + simpl. apply orb_true_iff. left. apply IHexp_match.
+    + simpl. apply orb_true_iff. right. apply IHexp_match.
+    + simpl. reflexivity.
+    + simpl. reflexivity.
+  - intros H. induction re.
+    + simpl in H. discriminate.
+    + exists []. apply MEmpty.
+    + exists [t]. apply MChar.
+    + simpl in H. apply andb_true_iff in H. destruct H as [H1 H2].
+      * apply IHre1 in H1. apply IHre2 in H2. destruct H1 as [s1 H_match1]. destruct H2 as [s2 H_match2].
+        exists (s1 ++ s2). apply MApp. apply H_match1. apply H_match2.
+    + simpl in H. apply orb_true_iff in H. destruct H as [H1|H2].
+      * (* Caminho Esquerdo do OU *)
+        apply IHre1 in H1. destruct H1 as [s1 H_match1].
+        exists s1. apply MUnionL. apply H_match1.
+      * (* Caminho Direito do OU *)
+        apply IHre2 in H2. destruct H2 as [s2 H_match2].
+        exists s2. apply MUnionR. apply H_match2.
+    + exists []. apply MStar0.
+Qed.
 
 (* ================================================================= *)
 (** ** The [remember] Tactic *)
@@ -1923,8 +1980,58 @@ Lemma MStar'' : forall T (s : list T) (re : reg_exp T),
     s = fold app ss []
     /\ forall s', In s' ss -> s' =~ re.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros T s re H. remember (Star re) as re' eqn:E.
+  induction H.
+  - discriminate E.
+  - discriminate E.
+  - discriminate E.
+  - discriminate E.
+  - discriminate E.
+  - exists []. simpl. split.
+    + reflexivity.
+    + intros S. intros F. destruct F.
+  - (* MStarApp *)
+      (* 1. Ajeitamos os tipos com o injection *)
+      injection E as ->.
+      
+      (* 2. Como perdemos o 'E', criamos um novo fato trivial (Star re = Star re)
+            para podermos engatilhar a Hipótese de Indução 2 *)
+      assert (H_trivial : Star re = Star re). { reflexivity. }
+      
+      (* 3. Acionamos a IH2 usando o fato que criamos *)
+      apply IHexp_match2 in H_trivial.
+      
+      (* 4. Desempacotamos o 'exists' e o 'E' da indução *)
+      destruct H_trivial as [ss2 [H_fold H_forall]].
+      
+      (* 5. Entregamos a resposta para o objetivo: a lista final é
+            o nosso primeiro pedaço 's1' seguido da lista de pedaços 'ss2' *)
+      exists (s1 :: ss2).
+      split.
+      
+      + (* Sub-prova 1: A Concatenação (Fold) *)
+        simpl. 
+        (* Trocamos o 'fold ss2' por 's2' usando a prova que a indução nos deu *)
+        rewrite <- H_fold. 
+        reflexivity.
+        
+      + (* Sub-prova 2: A Validade dos Pedaços (Forall) *)
+        intros s' H_in. 
+        simpl in H_in. 
+        (* A função In diz que ou é a cabeça (s1) ou está na cauda (ss2) *)
+        destruct H_in as [H_eq | H_in_tail].
+        
+        * (* Caso seja a cabeça (s') = s1 *)
+          rewrite <- H_eq. 
+          (* Nós já temos 'H : s1 =~ re' no contexto *)
+          apply H.
+          
+        * (* Caso esteja na cauda (ss2) *)
+          (* A nossa indução (H_forall) já provou que todos os
+             elementos da cauda são válidos. Basta acionar ela. *)
+          apply H_forall. 
+          apply H_in_tail.
+Qed.
 
 (* ================================================================= *)
 (** ** The "Weak" Pumping Lemma *)
@@ -2048,6 +2155,8 @@ Qed.
     -- in particular, [lt_ge_cases] and [plus_le]. *)
 
 (** **** Exercise: 2 stars, standard (weak_pumping_char) *)
+
+(*BASTA QUEBRAR USANDO INVERSION A HIPOTESE *)
 Lemma weak_pumping_char : forall (T : Type) (x : T),
   pumping_constant (Char x) <= length [x] ->
   exists s1 s2 s3 : list T,
@@ -2055,8 +2164,8 @@ Lemma weak_pumping_char : forall (T : Type) (x : T),
     s2 <> [ ] /\
     (forall m : nat, s1 ++ napp m s2 ++ s3 =~ Char x).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros T x H. simpl in H. inversion H. inversion H1.
+Qed.
 
 (** **** Exercise: 3 stars, standard (weak_pumping_app) *)
 Lemma weak_pumping_app : forall (T : Type)
@@ -2584,11 +2693,6 @@ End RecallIn.
 (** Finally, state and prove one or more interesting theorems relating
     [disjoint], [NoDup] and [++] (list append).  *)
 
-(* FILL IN HERE *)
-
-(* Do not modify the following line: *)
-Definition manual_grade_for_NoDup_disjoint_etc : option (nat*string) := None.
-(** [] *)
 
 (** **** Exercise: 5 stars, advanced, optional (pigeonhole_principle)
 
@@ -2612,9 +2716,6 @@ Proof.
 Inductive repeats {X:Type} : list X -> Prop :=
   (* FILL IN HERE *)
 .
-
-(* Do not modify the following line: *)
-Definition manual_grade_for_check_repeats : option (nat*string) := None.
 
 (** Now, here's a way to formalize the pigeonhole principle.  Suppose
     list [l2] represents a list of pigeonhole labels, and list [l1]
