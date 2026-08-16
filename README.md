@@ -32,3 +32,9 @@ Abaixo está uma lista das matérias, organizadas por suas respectivas pastas ne
 
 
 ---
+
+## Grade Curricular
+
+Abaixo está a grade curricular do curso que eu cursei:
+
+![Grade do Curso](grade_curricular.jpg)
