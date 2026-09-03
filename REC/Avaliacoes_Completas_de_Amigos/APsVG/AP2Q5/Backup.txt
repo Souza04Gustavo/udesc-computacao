@@ -1,0 +1,1 @@
+Melhorias da MIMO: Melhoria de vazão,  redução de overhead e robustez.

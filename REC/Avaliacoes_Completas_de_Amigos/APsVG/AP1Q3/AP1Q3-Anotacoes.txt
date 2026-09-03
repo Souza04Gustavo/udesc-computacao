@@ -1,0 +1,66 @@
+internet = conjunto de sistemas autônomos conectados uns com os outros.
+sistemas autônomos
+	acesso -> conecta o usuário final
+	transito -> comunica com outros sistemas autônomos
+	conteúdo -> disponibiliza o conteúdo na rede
+
+transporte = fim a fim
+	controle de fluxo de envio dos dados
+	TCP - Orientado à conexão, garantia de entrega, sem perdas/duplicação, three-way handshake
+	      "Grande cano"
+	      Pacotes podem seguir vários caminhos
+              Porta origem e destino
+	UCP - "best-effort" -> pode chegar fora de ordem, se tiver perda, não tem problema.
+	      protocolo de comunicação rápido
+
+segurança
+	subcamada da camada de transporte
+	TLS -> garantir confidencialidade, autenticidade, integridade e autenticação
+		1.3 -> evolução do 1.2
+			handshake mais rápido
+			melhor latência e segurança
+			setup de inicialização mais rápido
+			algoritmos de criptografia mais robustos e atualizados
+				renegociação retirada
+			mais simples
+			0-rtt -> para não atrasar a comunicação
+
+aplicação
+	controle de conversa entre as aplicações
+	HTTP 1.0 -> 1996, RFC 1945, cabeçalho, POST, Cookies
+	HTTP 1.1 -> 1997, RFC 9112, Keep-alive (manter conexão ativa) - TCP com tudo em ordem mesmo não precisando e não sendo efetivo
+	HTTP 2.0 -> 2015, RFC 9113, Multiplexação, Server-Side push, priorização, HPACK, compressão de cabeçalhos, deixar a conexão o mais rápido possível - TCP com conteúdo dividido em streams - problema!! head of line blocking
+	HTTP 3.0 -> 2022, RFC 9114, QUIC, TLS default, QPACK - QUIC faz vários túneis de comunicação com streamings independentes e inclui TLS
+		    resolver problemas do HTTP 2
+		    HTTP-over-QUIC
+		    desempenho lento em mudanças de wifi pra dados móveis
+		    diminuição do impacto de perda de pacotes
+
+QUIC
+	alternativa ao TCP
+	menor latência e handshake
+	mais segurança
+	"Quick UDP Internet Connections"
+	Controlar o fluxo para o envio de dados
+	baixa latência
+	migração de caminho de rede de forma de transporte
+		reconexão de NAT
+		Mudança de rede
+	Medidas de segurança
+	Protocolo seguro na camada de transporte
+	"camada 4.5"
+	UDP
+	permite http3
+	genérico, permite outros protocolos
+	stateful - mantém estado
+	streamings unidirecionais e bidirecionais
+	aumenta a criptografia
+	Pontos de atenção (QUIC, TLS1.3, HTTP/3)
+		mais complexo
+		maior criptografia, logo dificulta o "debug" e identificação de ameaças suspeito
+		mais uso de recursos do servidor (alguns equipamentos não são otimizados para isso)
+			mecanismos de fallback devem ser implementados
+				caso o UDP seja bloqueado, não há como usar o QUIC, devendo haver um fallback para TCP e usar outro protocolo
+	Ossificação
+		
+		

@@ -1,0 +1,4 @@
+Para NFC: Qual o Papel do NFC Fórum nos dias atuais?
+Para Bluetooth: Qual a proporção de gasto energético entre o classic e o low energy?
+Para LoRa: Como o LoRaWAN consegue escalar para milhares de dispositivos em grandes áreas?
+
